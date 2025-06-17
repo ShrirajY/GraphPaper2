@@ -10,6 +10,18 @@ public:
     Circle(HDC hdc, float centerX, float centerY, float radius, COLORREF color);
 
     static Circle Create(HDC hdc, float centerX, float centerY, float radius, COLORREF color);
+
+    bool operator==(const Circle& other) const
+    {
+        return (centerX_ == other.centerX_ && centerY_ == other.centerY_ && radius_ == other.radius_);
+    }
+
+    bool operator!=(const Circle& other) const
+    {
+        return !(*this == other);
+    }
+
+    void SetColor(COLORREF color) { color_ = color; }
     friend class ShapeDrawer;
 private:
     HDC hdc_;

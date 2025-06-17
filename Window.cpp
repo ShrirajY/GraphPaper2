@@ -5,6 +5,10 @@
 #include "Globals.hpp"
 #include "Circle.hpp"
 #include "Line.hpp"
+
+#include "DrawGB/DrawCircle.hpp"
+#include "DrawGB/DrawLine.hpp"
+#include "DrawGB/DrawDropDownBox.hpp"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 
@@ -30,7 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                              WS_OVERLAPPEDWINDOW,
                              0, 0, screenWidth, screenHeight,
                              NULL, NULL, hInstance, NULL);
-
+    hMain = hwnd; // Store the main window handle
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
 
@@ -46,15 +50,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 
-    static AxisDrawer *axisDrawer = nullptr;
     switch (msg)
     {
     case WM_CREATE:
     {
         HDC hdc = GetDC(hwnd);
-        axisDrawer = new AxisDrawer(hdc, GraphWidth, GraphHeight);
         ReleaseDC(hwnd, hdc);
-        break;
+
+        DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
     }
     case WM_PAINT:
     {
@@ -62,22 +66,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = BeginPaint(hwnd, &ps);
 
         // Set up the coordinate system
-        if (axisDrawer)
-        {
-            axisDrawer->Draw();
-        }
-
-        if(!axisDrawer)
-        {
-            MessageBox(hwnd, TEXT("AxisDrawer not initialized!"), TEXT("Error"), MB_OK | MB_ICONERROR);
-            axisDrawer = new AxisDrawer(hdc, GraphWidth, GraphHeight);
-            axisDrawer->Draw();
-        }
+        AxisDrawer axisDrawer(hdc, GraphWidth, GraphHeight);
+        axisDrawer.Draw();
 
         // Draw Sample Circle
         ShapeDrawer shapeDrawer(hdc);
-        Circle circle(hdc, 4, 3, 2, RGB(255, 0, 0));
-        shapeDrawer.DrawCircle(&circle);
+        for (Circle& circle : CircleList)
+        {
+            shapeDrawer.DrawCircle(&circle);
+        }
+
+        
 
         EndPaint(hwnd, &ps);
         return 0;
