@@ -11,8 +11,6 @@
 #include "DrawGB/DrawDropDownBox.hpp"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow)
 {
@@ -57,7 +55,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = GetDC(hwnd);
         ReleaseDC(hwnd, hdc);
 
-        DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        GroupBoxCircle *gb = new GroupBoxCircle();
+        gb->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
     }
     case WM_PAINT:
@@ -71,12 +70,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // Draw Sample Circle
         ShapeDrawer shapeDrawer(hdc);
-        for (Circle& circle : CircleList)
+        for (Circle &circle : CircleList)
         {
             shapeDrawer.DrawCircle(&circle);
         }
 
-        
+        FillBox(hDGBCircle, RGB(100, 100, 100));
 
         EndPaint(hwnd, &ps);
         return 0;
@@ -84,6 +83,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
+
+    case WM_CTLCOLORSTATIC:
+    {
+        HWND hCtrl = (HWND)lParam;
+        if (hCtrl == hDGBCircle || hCtrl ==  hDGBLine || hCtrl == hDGBEllipse)
+        {
+            return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
+        }
+        break;
     }
+    }
+
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
