@@ -4,6 +4,7 @@
 #include "Globals.hpp" // Assuming this header defines the constants like GraphWidth, GraphHeight, etc.
 #include "Circle.hpp"
 #include "Line.hpp"
+#include "Ellipse.hpp"
 class ShapeDrawer
 {
 public:
@@ -13,7 +14,7 @@ public:
     void DrawLine(Line* line) const;
     void DrawRectangle(float x1, float y1, float x2, float y2, COLORREF color) const;
     void DrawCircle(Circle* circle) const;
-    void DrawEllipse(float centerX, float centerY, float a, float b, float angle, COLORREF color) const;
+    void DrawEllipse(Ellipse_* ellipse) const;
 
     static constexpr int Scale = 25;
     static constexpr int DefaultPointSize = 5;
@@ -93,18 +94,18 @@ void ShapeDrawer::DrawCircle(Circle* circle) const
     DeleteObject(hPen);
 }
 
-void ShapeDrawer::DrawEllipse(float centerX, float centerY, float a, float b, float angle, COLORREF color) const
+void ShapeDrawer::DrawEllipse(Ellipse_* ellipse) const
 {
-    HPEN hPen = CreatePen(PS_SOLID, 2, color);
+    HPEN hPen = CreatePen(PS_SOLID, 2, ellipse->color_);
     HGDIOBJ oldPen = SelectObject(hdc_, hPen);
     HGDIOBJ oldBrush = SelectObject(hdc_, GetStockObject(HOLLOW_BRUSH));
 
     POINT pts[EllipseSegments];
-    float rad = angle * 3.14159265f / 180.0f;
-    float cx = centerX * Scale;
-    float cy = centerY * Scale;
-    float ax = a * Scale;
-    float by = b * Scale;
+    float rad = ellipse->angle_ * 3.14159265f / 180.0f;
+    float cx = ellipse->centerX_ * Scale;
+    float cy = ellipse->centerY_ * Scale;
+    float ax = ellipse->a_ * Scale;
+    float by = ellipse->b_ * Scale;
 
     for (int i = 0; i < EllipseSegments; i++)
     {

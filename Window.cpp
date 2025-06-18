@@ -8,6 +8,7 @@
 
 #include "DrawGB/DrawCircle.hpp"
 #include "DrawGB/DrawLine.hpp"
+#include "DrawGB/DrawEllipse.hpp"
 #include "DrawGB/DrawDropDownBox.hpp"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -55,8 +56,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = GetDC(hwnd);
         ReleaseDC(hwnd, hdc);
 
-        GroupBoxCircle *gb = new GroupBoxCircle();
-        gb->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        GroupBoxCircle *gbCircle = new GroupBoxCircle();
+        // gb->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        GroupBoxLine *gbLine = new GroupBoxLine();
+        // gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        GroupBoxEllipse *gbEllipse = new GroupBoxEllipse();
+        gbEllipse->DrawGroupBoxEllipse(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        ActiveGroupBox = 2; // Default to Ellipse group box
+
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
     }
     case WM_PAINT:
@@ -74,8 +83,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             shapeDrawer.DrawCircle(&circle);
         }
+        for (Line &line : lineList)
+        {
+            shapeDrawer.DrawLine(&line);
+        }
+        for (Ellipse_ &ellipse : ellipseList)
+        {
+            shapeDrawer.DrawEllipse(&ellipse);
+        }
+        // FillBox(hDGBCircle, RGB(100, 100, 100));
+        // FillBox(hDGBLine, RGB(100, 100, 100));
 
-        FillBox(hDGBCircle, RGB(100, 100, 100));
+        if(ActiveGroupBox == 0)
+        {
+            FillBox(hDGBLine, grayCColor);
+        }
+        else if (ActiveGroupBox == 1)
+        {
+            FillBox(hDGBCircle, grayCColor);
+        }
+        else if (ActiveGroupBox == 2)
+        {
+            FillBox(hDGBEllipse, grayCColor);
+        }
 
         EndPaint(hwnd, &ps);
         return 0;

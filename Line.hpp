@@ -3,13 +3,29 @@
 
 #include <windows.h>
 #include "Globals.hpp"
-
+#include <list>
 class Line
 {
 public:
     Line(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color = RGB(0, 0, 0));
     friend class ShapeDrawer;
     static Line Create(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color);
+
+    void setColor(COLORREF color)
+    {
+        this->color_ = color;
+    }
+
+    bool operator==(const Line& other) const
+    {
+        return (x1_ == other.x1_ && y1_ == other.y1_ && x2_ == other.x2_ && y2_ == other.y2_);
+    }
+
+    bool operator!=(const Line& other) const
+    {
+        return !(*this == other);
+    }
+
 private:
     HDC hdc_;
     float x1_;
@@ -27,4 +43,17 @@ Line Line::Create(HDC hdc, float x1, float y1, float x2, float y2, COLORREF colo
 {
     return Line(hdc, x1, y1, x2, y2, color);
 }
+
+std::list<Line> lineList;
+
+void AddLine(const Line& line)
+{
+    lineList.push_back(line);
+}
+
+void removeLine(const Line& line)
+{
+    lineList.remove(line);
+}
+
 #endif // LINE_HPP

@@ -11,7 +11,7 @@ const int GraphHeight = 600; // Height of the graph area in pixels
 
 const int DGBIndexesLine = 1000;   // Base index for dialog group box controls
 const int DGBIndexesCircle = 1100; // Base index for circle controls
-
+const int DGBIndexesEllipse = 1200; // Base index for ellipse controls
 // Group Box for Drawing
 int DGBwidth = 250;
 int DGBHeight = 150;
@@ -86,4 +86,6 @@ class ColorBG
         return (INT_PTR)hBrush;
     }
 };
+
+int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse
 #endif // GLOBALS_HPP
