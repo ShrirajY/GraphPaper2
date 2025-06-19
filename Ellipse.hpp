@@ -7,9 +7,9 @@
 class Ellipse_
 {
 public:
-    Ellipse_(HDC hdc, float centerX, float centerY, float a, float b, float angle, COLORREF color);
+    Ellipse_(float centerX, float centerY, float a, float b, float angle, COLORREF color);
 
-    static Ellipse_ Create(HDC hdc, float centerX, float centerY, float a, float b, float angle, COLORREF color);
+    static Ellipse_ Create(float centerX, float centerY, float a, float b, float angle, COLORREF color);
 
     void setColor(COLORREF color)
     {
@@ -28,7 +28,6 @@ public:
     }
     friend class ShapeDrawer;
 private:
-    HDC hdc_;
     float centerX_;
     float centerY_;
     float a_;
@@ -37,12 +36,12 @@ private:
     COLORREF color_;
 };
 
-Ellipse_::Ellipse_(HDC hdc, float centerX, float centerY, float a, float b, float angle, COLORREF color)
-    : hdc_(hdc), centerX_(centerX), centerY_(centerY), a_(a), b_(b), angle_(angle), color_(color) {}
+Ellipse_::Ellipse_(float centerX, float centerY, float a, float b, float angle, COLORREF color)
+    : centerX_(centerX), centerY_(centerY), a_(a), b_(b), angle_(angle), color_(color) {}
 
-Ellipse_ Ellipse_::Create(HDC hdc, float centerX, float centerY, float a, float b, float angle, COLORREF color)
+Ellipse_ Ellipse_::Create(float centerX, float centerY, float a, float b, float angle, COLORREF color)
 {
-    return Ellipse_(hdc, centerX, centerY, a, b, angle, color);
+    return Ellipse_(centerX, centerY, a, b, angle, color);
 }
 
 std::list<Ellipse_> ellipseList;

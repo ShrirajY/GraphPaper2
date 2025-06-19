@@ -7,9 +7,9 @@
 class Circle
 {
 public:
-    Circle(HDC hdc, float centerX, float centerY, float radius, COLORREF color);
+    Circle(float centerX, float centerY, float radius, COLORREF color);
 
-    static Circle Create(HDC hdc, float centerX, float centerY, float radius, COLORREF color);
+    static Circle Create(float centerX, float centerY, float radius, COLORREF color);
 
     bool operator==(const Circle& other) const
     {
@@ -24,19 +24,18 @@ public:
     void SetColor(COLORREF color) { color_ = color; }
     friend class ShapeDrawer;
 private:
-    HDC hdc_;
     float centerX_;
     float centerY_;
     float radius_;
     COLORREF color_;
 };
 
-Circle::Circle(HDC hdc, float centerX, float centerY, float radius, COLORREF color)
-    : hdc_(hdc), centerX_(centerX), centerY_(centerY), radius_(radius), color_(color) {}
+Circle::Circle(float centerX, float centerY, float radius, COLORREF color)
+    : centerX_(centerX), centerY_(centerY), radius_(radius), color_(color) {}
 
-Circle Circle::Create(HDC hdc, float centerX, float centerY, float radius, COLORREF color)
+Circle Circle::Create(float centerX, float centerY, float radius, COLORREF color)
 {
-    return Circle(hdc, centerX, centerY, radius, color);
+    return Circle(centerX, centerY, radius, color);
 }
 
 std::list<Circle> CircleList;

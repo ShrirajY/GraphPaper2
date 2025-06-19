@@ -126,6 +126,6 @@ public:
             SetWindowTextA(GetDlgItem(hwndGroupBox, DGBIndexesCircle + i), "");
         }
 
-        return Circle::Create(GetDC(hwndGroupBox), centerX, centerY, radius, currColor);
+        return Circle::Create(centerX, centerY, radius, currColor);
     }
 };

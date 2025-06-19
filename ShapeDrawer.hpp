@@ -64,10 +64,10 @@ void ShapeDrawer::DrawLine(Line* line) const
 
 void ShapeDrawer::DrawRectangle(float x1, float y1, float x2, float y2, COLORREF color) const
 {
-    Line l1 = Line::Create(hdc_, x1, y1, x2, y1, color);
-    Line l2 = Line::Create(hdc_, x2, y1, x2, y2, color);
-    Line l3 = Line::Create(hdc_, x2, y2, x1, y2, color);
-    Line l4 = Line::Create(hdc_, x1, y2, x1, y1, color);
+    Line l1 = Line::Create(x1, y1, x2, y1, color);
+    Line l2 = Line::Create(x2, y1, x2, y2, color);
+    Line l3 = Line::Create(x2, y2, x1, y2, color);
+    Line l4 = Line::Create(x1, y2, x1, y1, color);
 
     DrawLine(&l1);
     DrawLine(&l2);

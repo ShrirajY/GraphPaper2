@@ -128,6 +128,6 @@ public:
             SetWindowTextA(GetDlgItem(hwndGroupBox, DGBIndexesLine + i), "");
         }
 
-        return Line::Create(GetDC(hwndGroupBox), x1, y1, x2, y2, currColor);
+        return Line::Create(x1, y1, x2, y2, currColor);
     }
 };

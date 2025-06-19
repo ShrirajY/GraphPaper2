@@ -147,6 +147,6 @@ public:
             SetWindowTextA(GetDlgItem(hwndGroupBox, DGBIndexesEllipse + i), "");
         }
 
-        return Ellipse_::Create(GetDC(hwndGroupBox), centerX, centerY, a, b, angle, currColor);
+        return Ellipse_::Create(centerX, centerY, a, b, angle, currColor);
     }
 };

@@ -7,9 +7,9 @@
 class Line
 {
 public:
-    Line(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color = RGB(0, 0, 0));
+    Line(float x1, float y1, float x2, float y2, COLORREF color = RGB(0, 0, 0));
     friend class ShapeDrawer;
-    static Line Create(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color);
+    static Line Create(float x1, float y1, float x2, float y2, COLORREF color);
 
     void setColor(COLORREF color)
     {
@@ -27,7 +27,6 @@ public:
     }
 
 private:
-    HDC hdc_;
     float x1_;
     float y1_;
     float x2_;
@@ -36,12 +35,12 @@ private:
 };
 
 
-Line::Line(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color)
-    : hdc_(hdc), x1_(x1), y1_(y1), x2_(x2), y2_(y2), color_(color) {}
+Line::Line(float x1, float y1, float x2, float y2, COLORREF color)
+    : x1_(x1), y1_(y1), x2_(x2), y2_(y2), color_(color) {}
 
-Line Line::Create(HDC hdc, float x1, float y1, float x2, float y2, COLORREF color)
+Line Line::Create(float x1, float y1, float x2, float y2, COLORREF color)
 {
-    return Line(hdc, x1, y1, x2, y2, color);
+    return Line(x1, y1, x2, y2, color);
 }
 
 std::list<Line> lineList;

@@ -10,6 +10,8 @@
 #include "DrawGB/DrawLine.hpp"
 #include "DrawGB/DrawEllipse.hpp"
 #include "DrawGB/DrawDropDownBox.hpp"
+
+#include "Parser/parser.h"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -57,16 +59,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ReleaseDC(hwnd, hdc);
 
         GroupBoxCircle *gbCircle = new GroupBoxCircle();
-        // gb->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         GroupBoxLine *gbLine = new GroupBoxLine();
-        // gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
         GroupBoxEllipse *gbEllipse = new GroupBoxEllipse();
         gbEllipse->DrawGroupBoxEllipse(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
-        ActiveGroupBox = 2; // Default to Ellipse group box
+        ActiveGroupBox = 0; // Default to Line group box
 
+        ShowWindow(hDGBLine, SW_SHOW);
+        ShowWindow(hDGBCircle, SW_HIDE);
+        ShowWindow(hDGBEllipse, SW_HIDE);
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        char filename[] = "shapes.txt";
+        parse(filename);
+        InvalidateRect(hwnd, NULL, TRUE);
+        return 0;
     }
     case WM_PAINT:
     {
@@ -94,7 +104,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // FillBox(hDGBCircle, RGB(100, 100, 100));
         // FillBox(hDGBLine, RGB(100, 100, 100));
 
-        if(ActiveGroupBox == 0)
+        if (ActiveGroupBox == 0)
         {
             FillBox(hDGBLine, grayCColor);
         }
@@ -110,6 +120,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         EndPaint(hwnd, &ps);
         return 0;
     }
+    case WM_COMMAND:
+        if (LOWORD(wParam) == 2001 && HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            int selectedIndex = SendMessage(hDropDown, CB_GETCURSEL, 0, 0);
+            ActiveGroupBox = selectedIndex; // Update active group box based on selection
+            ShowWindow(hDGBLine, selectedIndex == 0 ? SW_SHOW : SW_HIDE);
+            ShowWindow(hDGBCircle, selectedIndex == 1 ? SW_SHOW : SW_HIDE);
+            ShowWindow(hDGBEllipse, selectedIndex == 2 ? SW_SHOW : SW_HIDE);
+            InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
+        }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
@@ -117,7 +138,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_CTLCOLORSTATIC:
     {
         HWND hCtrl = (HWND)lParam;
-        if (hCtrl == hDGBCircle || hCtrl ==  hDGBLine || hCtrl == hDGBEllipse)
+        if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse)
         {
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
         }
