@@ -6,10 +6,46 @@
 class Arrow
 {
 public:
-    Arrow(POINT start, POINT end) : start_(start), end_(end), next_(nullptr), color(currColor) {}
+    Arrow(POINT start, POINT end) : start_(start), end_(end), next_(nullptr), color(currColor)
+    {
+    }
     POINT start_, end_;
     COLORREF color = RGB(255, 0, 0); // Default color red
     Arrow *next_;
+    HWND hEdit = nullptr; // Handle to the edit control for this arrow
+
+    static void DisableEditIfInBounds(HWND hMain)
+    {
+        HWND hWndFocus = GetFocus();
+
+        if (hWndFocus != NULL && IsChild(hMain, hWndFocus))
+        {
+            // Check if the focused control is an Edit control
+            TCHAR className[256];
+            GetClassName(hWndFocus, className, sizeof(className) / sizeof(TCHAR));
+
+            if (_tcscmp(className, TEXT("Edit")) == 0) // Confirm it's an Edit control
+            {
+                // Get the position of the control relative to the main window
+                RECT rcControl;
+                GetWindowRect(hWndFocus, &rcControl);
+                ScreenToClient(hMain, (LPPOINT)&rcControl.left);
+                ScreenToClient(hMain, (LPPOINT)&rcControl.right);
+
+                int width = rcControl.right - rcControl.left;
+                int height = rcControl.bottom - rcControl.top;
+
+                // Check if it's within 800x600 bounds
+                if (rcControl.left >= 0 && rcControl.top >= 0 &&
+                    rcControl.right <= 800 && rcControl.bottom <= 600)
+                {
+                    // Remove focus
+                    SetFocus(hMain);
+                    EnableWindow(hWndFocus, FALSE);
+                }
+            }
+        }
+    }
 };
 
 class ArrowList
@@ -30,23 +66,57 @@ public:
 
         DPtoLP(hdc, &start, 1);
         DPtoLP(hdc, &end, 1);
+
+        const int xMin = -GraphWidth / 2;
+        const int xMax = GraphWidth / 2;
+        const int yMin = -GraphHeight / 2;
+        const int yMax = GraphHeight / 2;
+
+        if (start.x < xMin || start.x > xMax ||
+            end.x < xMin || end.x > xMax ||
+            start.y < yMin || start.y > yMax ||
+            end.y < yMin || end.y > yMax)
+        {
+            return; // Skip drawing this arrow
+        }
+
         Arrow *node = new Arrow(start, end);
+        POINT deviceEnd = end;
+        LPtoDP(hdc, &deviceEnd, 1);
+        node->hEdit = CreateWindowEx(
+            0, TEXT("EDIT"), TEXT(""),
+            WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
+            deviceEnd.x + 5, deviceEnd.y + 5, 80, 20,
+            hMain, NULL, (HINSTANCE)GetWindowLongPtr(hMain, GWLP_HINSTANCE), NULL);
         node->next_ = head_;
         head_ = node;
     }
 
     void DrawAll(HDC hdc) const
     {
+        const int xMin = -GraphWidth / 2;
+        const int xMax = GraphWidth / 2;
+        const int yMin = -GraphHeight / 2;
+        const int yMax = GraphHeight / 2;
+
         for (Arrow *node = head_; node; node = node->next_)
         {
-            // Example: width 3, color red
+            // Check if both start and end are within the logical window
+            if (node->start_.x < xMin || node->start_.x > xMax ||
+                node->end_.x < xMin || node->end_.x > xMax ||
+                node->start_.y < yMin || node->start_.y > yMax ||
+                node->end_.y < yMin || node->end_.y > yMax)
+            {
+                continue; // Skip drawing this arrow
+            }
+
             HPEN hPen = CreatePen(PS_SOLID, 3, node->color);
             HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 
             MoveToEx(hdc, node->start_.x, node->start_.y, NULL);
             LineTo(hdc, node->end_.x, node->end_.y);
-            this->DrawArrowHead(hdc, node->start_, node->end_, 15, 35.0); // Draw arrowhead
-            // Restore old pen and delete the created pen
+            DrawArrowHead(hdc, node->start_, node->end_, 15, 35.0);
+
             SelectObject(hdc, hOldPen);
             DeleteObject(hPen);
         }

@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <cmath>
 #include <windowsx.h>
+#include <tchar.h>
 #include "Axis.hpp"
 #include "ShapeDrawer.hpp"
 #include "Globals.hpp"
@@ -87,7 +88,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = BeginPaint(hwnd, &ps);
         // HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 230));
         // SelectObject(hdc, hBrush);
-        
+
         // DeleteObject(hBrush);
         // Set up the coordinate system
         AxisDrawer axisDrawer(hdc, GraphWidth, GraphHeight);
@@ -122,7 +123,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             FillBox(hDGBEllipse, grayCColor);
         }
-        
+
         g_arrows.DrawAll(hdc); // Draw all arrows
         HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255));
         SelectObject(hdc, hBrush);
@@ -141,6 +142,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ShowWindow(hDGBEllipse, selectedIndex == 2 ? SW_SHOW : SW_HIDE);
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
+
+        if (HIWORD(wParam) == EN_SETFOCUS)
+        {
+            HWND hNewFocus = (HWND)lParam;
+            if (hPrevEdit && hPrevEdit != hNewFocus)
+            {
+                EnableWindow(hPrevEdit, FALSE);
+                SetFocus(hMain);
+                SetFocus(hNewFocus);
+            }
+            hPrevEdit = hNewFocus;
+        }
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -153,18 +166,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
         }
+    }
+    case WM_CTLCOLOREDIT:
+    {
+        HDC hdcEdit = (HDC)wParam;
+        SetBkColor(hdcEdit, RGB(205, 193, 255));
+        SetTextColor(hdcEdit, RGB(0, 0, 0)); // Invert text color for visibility
+        return (LRESULT)hTransparentBrush;
         break;
     }
-
-    case WM_LBUTTONDOWN: {
+    case WM_LBUTTONDOWN:
+    {
         g_tempStart.x = GET_X_LPARAM(lParam);
         g_tempStart.y = GET_Y_LPARAM(lParam);
         g_drawing = true;
+        
+        Arrow::DisableEditIfInBounds(hMain);
+
         break;
     }
 
-    case WM_LBUTTONUP: {
-        if (g_drawing) {
+    case WM_LBUTTONUP:
+    {
+        if (g_drawing)
+        {
             POINT end;
             end.x = GET_X_LPARAM(lParam);
             end.y = GET_Y_LPARAM(lParam);

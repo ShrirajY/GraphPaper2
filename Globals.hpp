@@ -27,7 +27,7 @@ HWND hDGBLine = NULL;    // Handle for the Line group box
 HWND hDGBEllipse = NULL; // Handle for the Ellipse group box
 HWND hDropDown = NULL;   // Handle for the drop-down box
 HWND hColorPicker = NULL;
-
+HWND hPrevEdit = NULL; // Handle for the previous edit control
 
 COLORREF currColor = RGB(0, 0, 0); // Current color for drawing shapes
 COLORREF redCColor = RGB(230, 0, 0);
