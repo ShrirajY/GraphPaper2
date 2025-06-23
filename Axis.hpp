@@ -4,6 +4,9 @@
 #pragma once
 #include <windows.h>
 #include "Globals.hpp"
+
+#include <queue>
+#include <set>
 class AxisDrawer
 {
 public:
@@ -105,5 +108,43 @@ void AxisDrawer::DrawGrid()
     SelectObject(hdc_, hOldPen);
     DeleteObject(hPen);
 }
+
+#include <vector>
+#include <queue>
+#include <set>
+
+void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const std::set<COLORREF>& stopColors)
+{
+    COLORREF startColor = GetPixel(hdc, startX, startY);
+
+    // Only fill if the starting color is in stopColors and not already fillColor
+    if (!stopColors.count(startColor) || startColor == fillColor)
+        return;
+
+    std::queue<POINT> q;
+    q.push({startX, startY});
+
+    while (!q.empty()) {
+        POINT p = q.front(); q.pop();
+        COLORREF currentColor = GetPixel(hdc, p.x, p.y);
+
+        // Only fill if the color is in stopColors and not already fillColor
+        if (!stopColors.count(currentColor) || currentColor == fillColor)
+            continue;
+
+        SetPixel(hdc, p.x, p.y, fillColor);
+
+        if (p.x > 0) q.push({p.x - 1, p.y});
+        if (p.y > 0) q.push({p.x, p.y - 1});
+        q.push({p.x + 1, p.y});
+        q.push({p.x, p.y + 1});
+    }
+}
+
+std::set<COLORREF> BackgroundColors = {
+    RGB(255, 255, 255), // background
+    RGB(10, 10, 10),    // axis
+    RGB(210, 210, 210)  // grid
+};
 
 #endif // AXIS_HPP

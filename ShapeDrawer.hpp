@@ -87,7 +87,7 @@ void ShapeDrawer::DrawCircle(Circle* circle) const
 
     Ellipse(hdc_, centerX - radius, centerY + radius, centerX + radius, centerY - radius);
 
-    DrawPoint(circle->centerX_, circle->centerY_, circle->color_, DefaultPointSize);
+    // DrawPoint(circle->centerX_, circle->centerY_, circle->color_, DefaultPointSize);
 
     SelectObject(hdc_, oldBrush);
     SelectObject(hdc_, oldPen);

@@ -1,6 +1,8 @@
 #ifndef GLOBALS_HPP
 #define GLOBALS_HPP
 
+#include <windows.h>
+
 HWND hMain = NULL; // Handle for the main window
 
 const int tickSpacing = 25; // Spacing between grid lines in pixels
@@ -88,4 +90,8 @@ class ColorBG
 };
 
 int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse
+
+
+// In your window class or as globals:
+
 #endif // GLOBALS_HPP

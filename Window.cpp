@@ -1,10 +1,13 @@
 #include <windows.h>
 #include <cmath>
+#include <windowsx.h>
 #include "Axis.hpp"
 #include "ShapeDrawer.hpp"
 #include "Globals.hpp"
 #include "Circle.hpp"
 #include "Line.hpp"
+#include "Ellipse.hpp"
+#include "Arrow.hpp"
 
 #include "DrawGB/DrawCircle.hpp"
 #include "DrawGB/DrawLine.hpp"
@@ -82,7 +85,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
-
+        // HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 230));
+        // SelectObject(hdc, hBrush);
+        
+        // DeleteObject(hBrush);
         // Set up the coordinate system
         AxisDrawer axisDrawer(hdc, GraphWidth, GraphHeight);
         axisDrawer.Draw();
@@ -116,7 +122,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             FillBox(hDGBEllipse, grayCColor);
         }
-
+        
+        g_arrows.DrawAll(hdc); // Draw all arrows
+        HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255));
+        SelectObject(hdc, hBrush);
+        // FloodFillCustom(hdc, 10, 10, RGB(255, 0, 0), BackgroundColors);
+        DeleteObject(hBrush);
         EndPaint(hwnd, &ps);
         return 0;
     }
@@ -141,6 +152,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse)
         {
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
+        }
+        break;
+    }
+
+    case WM_LBUTTONDOWN: {
+        g_tempStart.x = GET_X_LPARAM(lParam);
+        g_tempStart.y = GET_Y_LPARAM(lParam);
+        g_drawing = true;
+        break;
+    }
+
+    case WM_LBUTTONUP: {
+        if (g_drawing) {
+            POINT end;
+            end.x = GET_X_LPARAM(lParam);
+            end.y = GET_Y_LPARAM(lParam);
+            g_arrows.Add(g_tempStart, end, GetDC(hwnd));
+            g_drawing = false;
+            InvalidateRect(hwnd, NULL, TRUE);
         }
         break;
     }
