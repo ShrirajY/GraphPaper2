@@ -9,6 +9,7 @@
 #include "Line.hpp"
 #include "Ellipse.hpp"
 #include "Arrow.hpp"
+#include "HitTest.hpp"
 
 #include "DrawGB/DrawCircle.hpp"
 #include "DrawGB/DrawLine.hpp"
@@ -54,7 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-
+    ShapeManager *shapeManager = new ShapeManager();
     switch (msg)
     {
     case WM_CREATE:
@@ -177,10 +178,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     case WM_LBUTTONDOWN:
     {
-        g_tempStart.x = GET_X_LPARAM(lParam);
-        g_tempStart.y = GET_Y_LPARAM(lParam);
-        g_drawing = true;
-        
+        // g_tempStart.x = GET_X_LPARAM(lParam);
+        // g_tempStart.y = GET_Y_LPARAM(lParam);
+        // g_drawing = true;
+
+        HDC hdc = GetDC(hwnd); // Get the DC once
+
+        SetMapMode(hdc, MM_ANISOTROPIC);
+        SetWindowExtEx(hdc, GraphWidth, GraphHeight, NULL);
+        SetViewportExtEx(hdc, GraphWidth, -GraphHeight, NULL);        // Invert Y axis
+        SetViewportOrgEx(hdc, GraphWidth / 2, GraphHeight / 2, NULL); // Origin center
+
+        POINT point;
+        point.x = GET_X_LPARAM(lParam);
+        point.y = GET_Y_LPARAM(lParam);
+        DPtoLP(hdc, &point, 1); // Now this will work as expected
+        TCHAR buffer[100];
+        shapeManager->HitTest(point.x / 25, point.y / 25, 1.0f);
+        snprintf(buffer, sizeof(buffer), TEXT("X: %d, Y: %d"), point.x, point.y);
+        MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
+        // MessageBox(NULL, TEXT("Hit Test"), TEXT("Hit Test"), MB_OK);
         Arrow::DisableEditIfInBounds(hMain);
 
         break;

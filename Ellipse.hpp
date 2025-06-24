@@ -27,6 +27,7 @@ public:
         return !(*this == other);
     }
     friend class ShapeDrawer;
+    friend class ShapeManager;
 private:
     float centerX_;
     float centerY_;

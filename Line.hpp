@@ -25,8 +25,8 @@ public:
     {
         return !(*this == other);
     }
-
-private:
+    friend class ShapeManager;
+private:    
     float x1_;
     float y1_;
     float x2_;

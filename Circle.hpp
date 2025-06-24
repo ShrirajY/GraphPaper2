@@ -23,6 +23,7 @@ public:
 
     void SetColor(COLORREF color) { color_ = color; }
     friend class ShapeDrawer;
+    friend class ShapeManager;
 private:
     float centerX_;
     float centerY_;
