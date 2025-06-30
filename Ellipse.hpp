@@ -16,6 +16,11 @@ public:
         this->color_ = color;
     }
 
+    COLORREF getColor() const
+    {
+        return color_;
+    }
+
     bool operator==(const Ellipse_& other) const
     {
         return (centerX_ == other.centerX_ && centerY_ == other.centerY_ &&
@@ -28,6 +33,8 @@ public:
     }
     friend class ShapeDrawer;
     friend class ShapeManager;
+    friend class ShowShapesInfo;
+
 private:
     float centerX_;
     float centerY_;
@@ -56,5 +63,7 @@ void removeEllipse(const Ellipse_& ellipse)
 {
     ellipseList.remove(ellipse);
 }
+
+Ellipse_ *SelectedEllipse = nullptr;
 
 #endif // ELLIPSE_HPP

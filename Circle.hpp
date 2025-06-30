@@ -22,8 +22,12 @@ public:
     }
 
     void SetColor(COLORREF color) { color_ = color; }
+
+    COLORREF GetColor() const { return color_; }
+
     friend class ShapeDrawer;
     friend class ShapeManager;
+    friend class ShowShapesInfo;
 private:
     float centerX_;
     float centerY_;
@@ -49,5 +53,7 @@ void removeCircle(const Circle& circle)
 {
     CircleList.remove(circle);
 }
+
+Circle *SelectedCircle = nullptr;
 
 #endif // CIRCLE_HPP

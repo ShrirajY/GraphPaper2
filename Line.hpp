@@ -8,12 +8,17 @@ class Line
 {
 public:
     Line(float x1, float y1, float x2, float y2, COLORREF color = RGB(0, 0, 0));
-    friend class ShapeDrawer;
+    
     static Line Create(float x1, float y1, float x2, float y2, COLORREF color);
 
     void setColor(COLORREF color)
     {
         this->color_ = color;
+    }
+
+    COLORREF getColor() const
+    {
+        return color_;
     }
 
     bool operator==(const Line& other) const
@@ -25,18 +30,29 @@ public:
     {
         return !(*this == other);
     }
+    friend class ShapeDrawer;
     friend class ShapeManager;
+    friend class ShowShapesInfo;
 private:    
     float x1_;
     float y1_;
     float x2_;
     float y2_;
+    float slope_;
+    float length_;
     COLORREF color_;
 };
 
 
 Line::Line(float x1, float y1, float x2, float y2, COLORREF color)
-    : x1_(x1), y1_(y1), x2_(x2), y2_(y2), color_(color) {}
+    : x1_(x1), y1_(y1), x2_(x2), y2_(y2), color_(color) {
+    if (x2_ - x1_ != 0) {
+        slope_ = (y2_ - y1_) / (x2_ - x1_);
+    } else {
+        slope_ = 0; // Vertical line
+    }
+    length_ = std::hypot(x2_ - x1_, y2_ - y1_);
+}
 
 Line Line::Create(float x1, float y1, float x2, float y2, COLORREF color)
 {
@@ -54,5 +70,7 @@ void removeLine(const Line& line)
 {
     lineList.remove(line);
 }
+
+Line *SelectedLine;
 
 #endif // LINE_HPP

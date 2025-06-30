@@ -79,6 +79,7 @@ public:
                 Ellipse_ temp = GroupBoxEllipse::CollectEllipse(hwnd);
                 temp.setColor(currColor); // Assuming currColor is defined globally or passed in some way
                 AddEllipse(temp);
+                InvalidateRect(hShowInfo, NULL, TRUE);
                 // SendMessage(hEllipseDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);
             }

@@ -66,6 +66,7 @@ public:
                 Circle temp = GroupBoxCircle::CollectCircle(hDGBCircle);
                 temp.SetColor(currColor); // Assuming currColor is defined globally or passed in some way
                 AddCircle(temp);
+                InvalidateRect(hShowInfo, NULL, TRUE);
                 // SendMessage(hCircleDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);
             }

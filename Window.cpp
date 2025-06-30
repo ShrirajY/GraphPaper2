@@ -16,6 +16,8 @@
 #include "DrawGB/DrawEllipse.hpp"
 #include "DrawGB/DrawDropDownBox.hpp"
 
+#include "ShowInfo/ShowShapesInfo.hpp"
+
 #include "Parser/parser.h"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -56,6 +58,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     ShapeManager *shapeManager = new ShapeManager();
+    static GroupBoxEllipse *gbEllipse = nullptr;
+    static GroupBoxLine *gbLine = nullptr;
+    static GroupBoxCircle *gbCircle = nullptr;
+    static ShowShapesInfo *showShapesInfo = nullptr;
     switch (msg)
     {
     case WM_CREATE:
@@ -63,13 +69,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = GetDC(hwnd);
         ReleaseDC(hwnd, hdc);
 
-        GroupBoxCircle *gbCircle = new GroupBoxCircle();
+        gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-        GroupBoxLine *gbLine = new GroupBoxLine();
+        gbLine = new GroupBoxLine();
         gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
-        GroupBoxEllipse *gbEllipse = new GroupBoxEllipse();
+        gbEllipse = new GroupBoxEllipse();
         gbEllipse->DrawGroupBoxEllipse(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        showShapesInfo = new ShowShapesInfo();
+        showShapesInfo->DrawShowGroupBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
         ActiveGroupBox = 0; // Default to Line group box
 
@@ -83,6 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hwnd, NULL, TRUE);
         return 0;
     }
+    
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -123,6 +133,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         else if (ActiveGroupBox == 2)
         {
             FillBox(hDGBEllipse, grayCColor);
+        }
+
+        if(hShowInfo)
+        {
+            FillBox(hShowInfo, candyCColor);
         }
 
         g_arrows.DrawAll(hdc); // Draw all arrows
@@ -167,6 +182,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
         }
+        if (hCtrl == hShowInfo)
+        {
+            return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, yellowCColor);
+        }
     }
     case WM_CTLCOLOREDIT:
     {
@@ -182,6 +201,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // g_tempStart.y = GET_Y_LPARAM(lParam);
         // g_drawing = true;
 
+        if(SelectedShape != 0)
+        {
+            ResetHighlighting();
+            KillTimer(hMain, 1); // Stop the timer if a shape is selected
+            SelectedShape = 0;   // Reset selected shape
+        }
+
         HDC hdc = GetDC(hwnd); // Get the DC once
 
         SetMapMode(hdc, MM_ANISOTROPIC);
@@ -193,13 +219,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         point.x = GET_X_LPARAM(lParam);
         point.y = GET_Y_LPARAM(lParam);
         DPtoLP(hdc, &point, 1); // Now this will work as expected
-        TCHAR buffer[100];
         shapeManager->HitTest(point.x / 25, point.y / 25, 1.0f);
-        snprintf(buffer, sizeof(buffer), TEXT("X: %d, Y: %d"), point.x, point.y);
-        MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
+        // MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
         // MessageBox(NULL, TEXT("Hit Test"), TEXT("Hit Test"), MB_OK);
         Arrow::DisableEditIfInBounds(hMain);
-
         break;
     }
 
@@ -213,6 +236,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             g_arrows.Add(g_tempStart, end, GetDC(hwnd));
             g_drawing = false;
             InvalidateRect(hwnd, NULL, TRUE);
+        }
+        break;
+    }
+
+    case WM_TIMER:
+    {
+        if(SelectedShape != 0)
+        {
+            SetTimerForHighlighting();
         }
         break;
     }

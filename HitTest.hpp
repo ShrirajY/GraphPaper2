@@ -7,6 +7,18 @@
 #include "Line.hpp"
 #include "Circle.hpp"
 #include "Ellipse.hpp"
+#include "Globals.hpp"
+
+std::vector<COLORREF> highlightColors = { 
+    // Highlighting colors for selected shapes
+    RGB(255, 255, 0), // Yellow
+    RGB(0, 255, 0),   // Green
+    RGB(0, 0, 255),   // Blue
+    RGB(255, 0, 0),   // Red
+    RGB(255, 128, 0), // Orange
+ };
+
+int CurrentHighlightColorIndex = 0; // Index for cycling through highlight colors
 
 class ShapeManager
 {
@@ -17,11 +29,16 @@ public:
         // Check lines
         for (auto &line : lineList)
         {
-            if (IsPointOnLineSegment(x, y, line.x1_, line.y1_, line.x2_, line.y2_, tol))
+            if (IsPointOnLineSegment(x, y, line.x1_, line.y1_, line.x2_, line.y2_, 0.5))
             {
-                line.setColor(RGB(255, 255, 0));   // Change color to yellow for hit
+                OldColor = line.getColor(); // Store the old color
+                // line.setColor(RGB(255, 255, 0));   // Change color to yellow for hit
+                SelectedLine = &line; // Store the selected line
+                SelectedShape = 1;   // Set selected shape to Line
                 InvalidateRect(hMain, NULL, TRUE); // Redraw the window
                 MessageBox(NULL, TEXT("Line selected"), TEXT("Hit Test"), MB_OK);
+                SetTimer(hMain, 1, 100, NULL); // Set a timer for highlighting
+                InvalidateRect(hMain, NULL, TRUE); // Redraw the window
                 return "Line";
             }
         }
@@ -30,17 +47,23 @@ public:
         {
             if (IsPointOnCircle(x, y, circle.centerX_, circle.centerY_, circle.radius_, tol))
             {
-                circle.SetColor(RGB(255, 255, 0)); // Change color to yellow for hit
+                SelectedCircle = &circle; // Store the selected circle
+                OldColor = circle.GetColor(); // Store the old color
+                SelectedShape = 2;       // Set selected shape to Circle
                 InvalidateRect(hMain, NULL, TRUE); // Redraw the window
                 MessageBox(NULL, TEXT("Circle selected"), TEXT("Hit Test"), MB_OK);
                 return "Circle";
             }
         }
         // Check ellipses
-        for (const auto &ellipse : ellipseList)
+        for (auto &ellipse : ellipseList)
         {
             if (IsPointOnEllipse(x, y, ellipse.centerX_, ellipse.centerY_, ellipse.a_, ellipse.b_, tol, ellipse.angle_))
             {
+                SelectedEllipse = &ellipse; // Store the selected ellipse
+                OldColor = ellipse.getColor(); // Store the old color
+                SelectedShape = 3;       // Set selected shape to Ellipse
+                InvalidateRect(hMain, NULL, TRUE); // Redraw the window
                 MessageBox(NULL, TEXT("Ellipse selected"), TEXT("Hit Test"), MB_OK);
                 return "Ellipse";
             }
@@ -49,22 +72,18 @@ public:
     }
 
 private:
-    std::list<Line> lines_;
-    std::list<Circle> circles_;
-    std::list<Ellipse_> ellipses_;
-
     // Helper functions
-    static bool IsPointOnLineSegment(float x, float y, float x1, float y1, float x2, float y2, float tol)
+    static bool IsPointOnLineSegment(double x, double y, double x1, double y1, double x2, double y2, double tol)
     {
-        float dx = x2 - x1, dy = y2 - y1;
-        float len_sq = dx * dx + dy * dy;
-        if (len_sq == 0.0f)
+        double dx = x2 - x1, dy = y2 - y1;
+        double len_sq = dx * dx + dy * dy;
+        if (len_sq == 0.0)
             return (std::hypot(x - x1, y - y1) <= tol);
-        float t = ((x - x1) * dx + (y - y1) * dy) / len_sq;
-        if (t < 0.0f || t > 1.0f)
+        double t = ((x - x1) * dx + (y - y1) * dy) / len_sq;
+        if (t < 0.0 || t > 1.0)
             return false;
-        float proj_x = x1 + t * dx;
-        float proj_y = y1 + t * dy;
+        double proj_x = x1 + t * dx;
+        double proj_y = y1 + t * dy;
         return (std::hypot(x - proj_x, y - proj_y) <= tol);
     }
     static bool IsPointOnCircle(float x, float y, float cx, float cy, float r, float tol)
@@ -91,3 +110,40 @@ private:
         return std::abs(val - 1.0f) <= tol;
     }
 };
+
+void SetTimerForHighlighting()
+{
+    // Set a timer for highlighting the selected shape
+    if(SelectedShape == 1) // Line
+    {
+        SelectedLine->setColor(highlightColors[CurrentHighlightColorIndex]);
+    }
+    else if(SelectedShape == 2) // Circle
+    {
+        SelectedCircle->SetColor(highlightColors[CurrentHighlightColorIndex]);
+    }
+    else if(SelectedShape == 3) // Ellipse
+    {
+        SelectedEllipse->setColor(highlightColors[CurrentHighlightColorIndex]);
+    }
+    CurrentHighlightColorIndex = (CurrentHighlightColorIndex + 1) % highlightColors.size();
+    SetTimer(hMain, 1, 1000, NULL);
+    InvalidateRect(hMain, NULL, TRUE); // Redraw the window
+}
+
+void ResetHighlighting()
+{
+    if(SelectedShape == 1) // Line
+    {
+        SelectedLine->setColor(OldColor);
+    }
+    else if(SelectedShape == 2) // Circle
+    {
+        SelectedCircle->SetColor(OldColor);
+    }
+    else if(SelectedShape == 3) // Ellipse
+    {
+        SelectedEllipse->setColor(OldColor);
+    }
+    InvalidateRect(hMain, NULL, TRUE); // Redraw the window
+}

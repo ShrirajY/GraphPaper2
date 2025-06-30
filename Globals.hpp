@@ -17,9 +17,14 @@ const int DGBIndexesEllipse = 1200; // Base index for ellipse controls
 // Group Box for Drawing
 int DGBwidth = 250;
 int DGBHeight = 150;
+int ShowInfoGBWidth = 350;
+int ShowInfoGBHeight = 400;
 
 int DGroupBoxLeft = 800 + 30;
 int DGroupBoxTop = 40;
+
+int ShowInfoLeft = 800 + 30;
+int ShowInfoTop = 220;
 
 // Handles for Group Boxes
 HWND hDGBCircle = NULL;  // Handle for the Circle group box
@@ -28,6 +33,8 @@ HWND hDGBEllipse = NULL; // Handle for the Ellipse group box
 HWND hDropDown = NULL;   // Handle for the drop-down box
 HWND hColorPicker = NULL;
 HWND hPrevEdit = NULL; // Handle for the previous edit control
+HWND hShowInfo = NULL; // Handle for the Show Info group box
+
 
 COLORREF currColor = RGB(0, 0, 0); // Current color for drawing shapes
 COLORREF redCColor = RGB(230, 0, 0);
@@ -91,7 +98,7 @@ class ColorBG
 
 int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse
 
-
+int SelectedShape = 0; // 1 for Line, 2 for Circle, 3 for Ellipse
 // In your window class or as globals:
-
+COLORREF OldColor = RGB(0, 0, 0); // Default color for shapes
 #endif // GLOBALS_HPP

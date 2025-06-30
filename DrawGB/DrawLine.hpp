@@ -64,6 +64,7 @@ public:
                 Line temp = GroupBoxLine::CollectLine(hwnd);
                 temp.setColor(currColor); // Assuming currColor is defined globally or passed in some way
                 AddLine(temp);
+                InvalidateRect(hShowInfo, NULL, TRUE);
                 // SendMessage(hLineDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);
             }
