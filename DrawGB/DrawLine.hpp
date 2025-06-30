@@ -3,14 +3,14 @@
 #include "../Line.hpp"
 #include "../ColorPicker.hpp"
 WNDPROC OldDGBProcLine = NULL;
-
-LRESULT CALLBACK EditProcLine(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 WNDPROC OldEditProcLine[4] = {nullptr, nullptr, nullptr, nullptr};
-
 class GroupBoxLine
 {
-public:
+private:
+    
     HWND hEdits[4];
+
+public:
     void DrawGroupBoxLine(HWND hwnd, HINSTANCE hInstance)
     {
         // Create the group box
