@@ -4,9 +4,13 @@
 #include "../ColorPicker.hpp"
 WNDPROC OldDGBProcLine = NULL;
 
+LRESULT CALLBACK EditProcLine(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+WNDPROC OldEditProcLine[4] = {nullptr, nullptr, nullptr, nullptr};
+
 class GroupBoxLine
 {
 public:
+    HWND hEdits[4];
     void DrawGroupBoxLine(HWND hwnd, HINSTANCE hInstance)
     {
         // Create the group box
@@ -25,25 +29,25 @@ public:
 
         CreateWindowEx(0, TEXT("STATIC"), TEXT("X1:"), WS_CHILD | WS_VISIBLE,
                        xLeft, y, labelW, boxH, hDGBLine, NULL, hInstance, NULL);
-        CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
-                       xLeft + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 1), hInstance, NULL);
+        hEdits[0] = CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                   xLeft + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 1), hInstance, NULL);
 
         CreateWindowEx(0, TEXT("STATIC"), TEXT("Y1:"), WS_CHILD | WS_VISIBLE,
                        xRight, y, labelW, boxH, hDGBLine, NULL, hInstance, NULL);
-        CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
-                       xRight + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 2), hInstance, NULL);
+        hEdits[1] = CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                   xRight + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 2), hInstance, NULL);
 
         // --- Row 2: X2 / Y2 ---
         y += boxH + pad;
         CreateWindowEx(0, TEXT("STATIC"), TEXT("X2:"), WS_CHILD | WS_VISIBLE,
                        xLeft, y, labelW, boxH, hDGBLine, NULL, hInstance, NULL);
-        CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
-                       xLeft + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 3), hInstance, NULL);
+        hEdits[2] = CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                   xLeft + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 3), hInstance, NULL);
 
         CreateWindowEx(0, TEXT("STATIC"), TEXT("Y2:"), WS_CHILD | WS_VISIBLE,
                        xRight, y, labelW, boxH, hDGBLine, NULL, hInstance, NULL);
-        CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
-                       xRight + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 4), hInstance, NULL);
+        hEdits[3] = CreateWindowEx(0, TEXT("EDIT"), TEXT(""), WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                   xRight + labelW, y, boxW, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 4), hInstance, NULL);
 
         // --- Row 3: Buttons ---
         y += boxH + pad;
@@ -52,6 +56,10 @@ public:
 
         CreateWindowEx(0, TEXT("BUTTON"), TEXT("Submit"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                        xRight + 10, y, 100, boxH, hDGBLine, (HMENU)(DGBIndexesLine + 5), hInstance, NULL);
+        for (int i = 0; i < 4; ++i)
+        {
+            OldEditProcLine[i] = (WNDPROC)SetWindowLongPtr(hEdits[i], GWLP_WNDPROC, (LONG_PTR)EditProcLine);
+        }
     }
 
     static LRESULT CALLBACK DGBProcLine(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -78,25 +86,6 @@ public:
         {
             return ColorBG::ColorBGTransparent((HDC)wParam, grayCColor, yellowCColor);
         }
-
-        case WM_KEYDOWN:
-            if (wParam == VK_RETURN)
-            {
-                HWND hFocus = GetFocus();
-                for (int i = 2; i <= 4; ++i)
-                {
-                    HWND hEdit = GetDlgItem(hwnd, DGBIndexesCircle + i);
-                    if (hFocus == hEdit)
-                    {
-                        HWND hNext = GetDlgItem(hwnd, DGBIndexesCircle + i + 1);
-                        if (hNext && i < 4)
-                            SetFocus(hNext);
-                        // Optionally, if on last box, you can trigger submit or do nothing
-                        return 0;
-                    }
-                }
-            }
-            break;
         default:
             return CallWindowProc(OldDGBProcLine, hwnd, msg, wParam, lParam);
         }
@@ -130,5 +119,42 @@ public:
         }
 
         return Line::Create(x1, y1, x2, y2, currColor);
+    }
+
+    static LRESULT CALLBACK EditProcLine(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        if ((msg == WM_KEYDOWN || msg == WM_CHAR) && wParam == VK_RETURN)
+        {
+            if (msg == WM_KEYDOWN)
+            {
+                // Find which edit box this is
+                for (int i = 0; i < 4; ++i)
+                {
+                    if (hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesLine + 1 + i))
+                    {
+                        if (i < 3)
+                        {
+                            HWND hNext = GetDlgItem(GetParent(hwnd), DGBIndexesLine + 2 + i);
+                            if (hNext)
+                                SetFocus(hNext);
+                        }
+                        else
+                        {
+                            // Optionally, trigger submit or do nothing
+                            HWND hSubmit = GetDlgItem(GetParent(hwnd), DGBIndexesLine + 5);
+                            SendMessage(hSubmit, BM_CLICK, 0, 0);
+                        }
+                        break;
+                    }
+                }
+            }
+            // Always return non-zero for both WM_KEYDOWN and WM_CHAR to suppress beep
+            return 1;
+        }
+        return CallWindowProc(
+            OldEditProcLine[hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesLine + 1) ? 0 : hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesLine + 2) ? 1
+                                                                                      : hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesLine + 3)   ? 2
+                                                                                                                                                  : 3],
+            hwnd, msg, wParam, lParam);
     }
 };
