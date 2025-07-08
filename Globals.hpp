@@ -19,6 +19,8 @@ int DGBwidth = 250;
 int DGBHeight = 150;
 int ShowInfoGBWidth = 350;
 int ShowInfoGBHeight = 400;
+int DDBwidth = 260; // Width of the drop-down box
+int DDBHeight = 100; // Height of the drop-down box
 
 int DGroupBoxLeft = 800 + 30;
 int DGroupBoxTop = 40;
@@ -31,6 +33,7 @@ HWND hDGBCircle = NULL;  // Handle for the Circle group box
 HWND hDGBLine = NULL;    // Handle for the Line group box
 HWND hDGBEllipse = NULL; // Handle for the Ellipse group box
 HWND hDropDown = NULL;   // Handle for the drop-down box
+HWND hDropDownFeature = NULL; // Handle for the feature drop-down box
 HWND hColorPicker = NULL;
 HWND hPrevEdit = NULL; // Handle for the previous edit control
 HWND hShowInfo = NULL; // Handle for the Show Info group box
@@ -47,6 +50,8 @@ COLORREF grayCColor = RGB(100, 100, 100);
 COLORREF violetCColor = RGB(128, 0, 128);
 COLORREF candyCColor = RGB(255, 128, 128);
 HBRUSH hTransparentBrush = NULL; // Brush for transparent background
+
+
 
 void FillBox(HWND hwnd, COLORREF color)
 {
@@ -97,6 +102,7 @@ class ColorBG
 };
 
 int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse
+int ActiveFeature = 0; // 0 for Draw Arrows, 1 for Fill Color, 2 for Select Shape
 
 int SelectedShape = 0; // 1 for Line, 2 for Circle, 3 for Ellipse
 // In your window class or as globals:

@@ -19,7 +19,7 @@ public:
     static constexpr int Scale = 25;
     static constexpr int DefaultPointSize = 5;
     static constexpr int LinePointSize = 7;
-    static constexpr int EllipseSegments = 360;
+    static constexpr int EllipseSegments = 720;
 
 private:
     HDC hdc_;
@@ -115,7 +115,7 @@ void ShapeDrawer::DrawEllipse(Ellipse_* ellipse) const
         float xr = x * cosf(rad) - y * sinf(rad);
         float yr = x * sinf(rad) + y * cosf(rad);
         pts[i].x = static_cast<LONG>(cx + xr);
-        pts[i].y = static_cast<LONG>(cy + yr);
+        pts[i].y = static_cast<LONG>(cy - yr); // Invert Y for device coordinates
     }
 
     Polyline(hdc_, pts, EllipseSegments);

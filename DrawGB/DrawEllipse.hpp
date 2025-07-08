@@ -3,9 +3,11 @@
 #include "../Ellipse.hpp"
 #include "../ColorPicker.hpp"
 WNDPROC OldDGBProcEllipse = NULL;
-
+WNDPROC OldEditProcEllipse[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};
 class GroupBoxEllipse
 {
+private:
+    HWND hEdits[5]; // XCenter, YCenter, A, B, Angle
 public:
     void DrawGroupBoxEllipse(HWND hwnd, HINSTANCE hInstance)
     {
@@ -66,6 +68,12 @@ public:
 
         CreateWindowEx(0, TEXT("BUTTON"), TEXT("Submit"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
                        xRight, yLine, 100, boxH, hDGBEllipse, (HMENU)(DGBIndexesEllipse + 6), hInstance, NULL);
+
+        for (int i = 0; i < 5; ++i)
+        {
+            hEdits[i] = GetDlgItem(hDGBEllipse, DGBIndexesEllipse + i + 1);
+            OldEditProcEllipse[i] = (WNDPROC)SetWindowLongPtr(hEdits[i], GWLP_WNDPROC, (LONG_PTR)EditProcEllipse);
+        }
     }
 
     static LRESULT CALLBACK DGBProcEllipse(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -149,5 +157,45 @@ public:
         }
 
         return Ellipse_::Create(centerX, centerY, a, b, angle, currColor);
+    }
+
+    static LRESULT CALLBACK EditProcEllipse(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        if ((msg == WM_KEYDOWN || msg == WM_CHAR) && wParam == VK_RETURN)
+        {
+            if (msg == WM_KEYDOWN)
+            {
+                // Find which edit box this is
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 1 + i))
+                    {
+                        if (i < 4)
+                        {
+                            // Move focus to the next edit box
+                            HWND hNext = GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 2 + i);
+                            if (hNext)
+                                SetFocus(hNext);
+                        }
+                        else
+                        {
+                            // Optionally, trigger submit or do nothing
+                            HWND hSubmit = GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 6);
+                            SendMessage(hSubmit, BM_CLICK, 0, 0);
+                        }
+                        break;
+                    }
+                }
+            }
+            // Always return non-zero for both WM_KEYDOWN and WM_CHAR to suppress beep
+            return 1;
+        }
+        return CallWindowProc(
+            OldEditProcEllipse[hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 1) ? 0
+                : hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 2) ? 1
+                : hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 3) ? 2
+                : hwnd == GetDlgItem(GetParent(hwnd), DGBIndexesEllipse + 4) ? 3
+                : 4],
+            hwnd, msg, wParam, lParam);
     }
 };

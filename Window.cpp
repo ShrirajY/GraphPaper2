@@ -92,7 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hwnd, NULL, TRUE);
         return 0;
     }
-    
+
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -135,7 +135,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             FillBox(hDGBEllipse, grayCColor);
         }
 
-        if(hShowInfo)
+        if (hShowInfo)
         {
             FillBox(hShowInfo, candyCColor);
         }
@@ -143,7 +143,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         g_arrows.DrawAll(hdc); // Draw all arrows
         HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255));
         SelectObject(hdc, hBrush);
-        // FloodFillCustom(hdc, 10, 10, RGB(255, 0, 0), BackgroundColors);
+
         DeleteObject(hBrush);
         EndPaint(hwnd, &ps);
         return 0;
@@ -156,6 +156,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ShowWindow(hDGBLine, selectedIndex == 0 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBCircle, selectedIndex == 1 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBEllipse, selectedIndex == 2 ? SW_SHOW : SW_HIDE);
+            InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
+        }
+
+        if (LOWORD(wParam) == 2002 && HIWORD(wParam) == CBN_SELCHANGE)
+        {
+            int selectedIndex = SendMessage(hDropDownFeature, CB_GETCURSEL, 0, 0);
+            ActiveFeature = selectedIndex;    // Update active feature based on selection
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
 
@@ -197,29 +204,56 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     case WM_LBUTTONDOWN:
     {
-        // g_tempStart.x = GET_X_LPARAM(lParam);
-        // g_tempStart.y = GET_Y_LPARAM(lParam);
-        // g_drawing = true;
-
-        if(SelectedShape != 0)
+        if (SelectedShape != 0)
         {
             ResetHighlighting();
             KillTimer(hMain, 1); // Stop the timer if a shape is selected
             SelectedShape = 0;   // Reset selected shape
         }
+        if (ActiveFeature == 0)
+        {
+            // Drawing arrows
+            g_tempStart.x = GET_X_LPARAM(lParam);
+            g_tempStart.y = GET_Y_LPARAM(lParam);
+            g_drawing = true;
+        }
+        else if (ActiveFeature == 1)
+        {
+            HDC hdc = GetDC(hwnd); // Get the DC once
 
-        HDC hdc = GetDC(hwnd); // Get the DC once
+            SetMapMode(hdc, MM_ANISOTROPIC);
+            SetWindowExtEx(hdc, GraphWidth, GraphHeight, NULL);
+            SetViewportExtEx(hdc, GraphWidth, -GraphHeight, NULL);        // Invert Y axis
+            SetViewportOrgEx(hdc, GraphWidth / 2, GraphHeight / 2, NULL); // Origin center
 
-        SetMapMode(hdc, MM_ANISOTROPIC);
-        SetWindowExtEx(hdc, GraphWidth, GraphHeight, NULL);
-        SetViewportExtEx(hdc, GraphWidth, -GraphHeight, NULL);        // Invert Y axis
-        SetViewportOrgEx(hdc, GraphWidth / 2, GraphHeight / 2, NULL); // Origin center
+            POINT point;
+            point.x = GET_X_LPARAM(lParam);
+            point.y = GET_Y_LPARAM(lParam);
+            DPtoLP(hdc, &point, 1); // Now this will work as expected
+            shapeManager->HitTest(point.x / 25, point.y / 25, 1.0f);
+        }
+        else if (ActiveFeature == 2)
+        {
+            HDC hdc = GetDC(hwnd); // Get the DC once
 
-        POINT point;
-        point.x = GET_X_LPARAM(lParam);
-        point.y = GET_Y_LPARAM(lParam);
-        DPtoLP(hdc, &point, 1); // Now this will work as expected
-        shapeManager->HitTest(point.x / 25, point.y / 25, 1.0f);
+            SetMapMode(hdc, MM_ANISOTROPIC);
+            SetWindowExtEx(hdc, GraphWidth, GraphHeight, NULL);
+            SetViewportExtEx(hdc, GraphWidth, -GraphHeight, NULL);        // Invert Y axis
+            SetViewportOrgEx(hdc, GraphWidth / 2, GraphHeight / 2, NULL); // Origin center
+
+            POINT point;
+            point.x = GET_X_LPARAM(lParam);
+            point.y = GET_Y_LPARAM(lParam);
+            DPtoLP(hdc, &point, 1); // Now this will work as expected
+            COLORREF ReverseColor = RGB(GetBValue(currColor),
+                                        GetGValue(currColor),
+                                        GetRValue(currColor));
+            FloodFillCustom(hdc, point.x, point.y, ReverseColor, BackgroundColors);
+        }
+
+        
+
+        // 
         // MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
         // MessageBox(NULL, TEXT("Hit Test"), TEXT("Hit Test"), MB_OK);
         Arrow::DisableEditIfInBounds(hMain);
@@ -240,9 +274,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
 
+    case WM_RBUTTONDOWN:
+    {
+        if(ActiveFeature == 0)
+        {
+            g_drawing = false; // Stop drawing arrows on right-click
+            ActiveFeature = -1;
+            InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
+        }
+        else if(ActiveFeature == -1)
+        {
+            g_drawing = true; // Resume drawing arrows on right-click
+            ActiveFeature = 0;
+            InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
+        }
+        break;
+    }
+
     case WM_TIMER:
     {
-        if(SelectedShape != 0)
+        if (SelectedShape != 0)
         {
             SetTimerForHighlighting();
         }

@@ -113,32 +113,88 @@ void AxisDrawer::DrawGrid()
 #include <queue>
 #include <set>
 
-void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const std::set<COLORREF>& stopColors)
+void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const std::set<COLORREF> &stopColors)
 {
-    COLORREF startColor = GetPixel(hdc, startX, startY);
+    const int maxX = 400;
+    const int maxY = 300;
 
-    // Only fill if the starting color is in stopColors and not already fillColor
-    if (!stopColors.count(startColor) || startColor == fillColor)
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = 2 * maxX;    // 800
+    bmi.bmiHeader.biHeight = 2 * maxY;  // -600 (top-down)
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    void *bits = nullptr;
+    HBITMAP hBmp = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &bits, NULL, 0);
+    if (!hBmp || !bits)
         return;
+
+    HDC memDC = CreateCompatibleDC(hdc);
+    HBITMAP oldBmp = (HBITMAP)SelectObject(memDC, hBmp);
+
+    // Copy the area to memory (centered at (0,0))
+    BitBlt(memDC, 0, 0, 2 * maxX, 2 * maxY, hdc, -maxX, -maxY, SRCCOPY);
+
+    auto getPixel = [&](int x, int y) -> COLORREF
+    {
+        int bufX = x + maxX;         // -400..399 -> 0..799
+        int bufY = maxY - 1 - y;     // -300..299 -> 299..0 (Y up)
+        if (bufX < 0 || bufX >= 2 * maxX || bufY < 0 || bufY >= 2 * maxY)
+            return 0xFFFFFFFF;
+        return ((COLORREF *)bits)[bufY * (2 * maxX) + bufX];
+    };
+    auto setPixel = [&](int x, int y, COLORREF c)
+    {
+        int bufX = x + maxX;
+        int bufY = maxY - 1 - y;
+        if (bufX < 0 || bufX >= 2 * maxX || bufY < 0 || bufY >= 2 * maxY)
+            return;
+        ((COLORREF *)bits)[bufY * (2 * maxX) + bufX] = c;
+    };
+
+    COLORREF startColor = getPixel(startX, startY);
+
+    if (!stopColors.count(startColor) || startColor == fillColor)
+    {
+        SelectObject(memDC, oldBmp);
+        DeleteObject(hBmp);
+        DeleteDC(memDC);
+        return;
+    }
 
     std::queue<POINT> q;
     q.push({startX, startY});
 
-    while (!q.empty()) {
-        POINT p = q.front(); q.pop();
-        COLORREF currentColor = GetPixel(hdc, p.x, p.y);
+    while (!q.empty())
+    {
+        POINT p = q.front();
+        q.pop();
 
-        // Only fill if the color is in stopColors and not already fillColor
+        COLORREF currentColor = getPixel(p.x, p.y);
+
         if (!stopColors.count(currentColor) || currentColor == fillColor)
             continue;
 
-        SetPixel(hdc, p.x, p.y, fillColor);
+        setPixel(p.x, p.y, fillColor);
 
-        if (p.x > 0) q.push({p.x - 1, p.y});
-        if (p.y > 0) q.push({p.x, p.y - 1});
-        q.push({p.x + 1, p.y});
-        q.push({p.x, p.y + 1});
+        if (p.x > -maxX)
+            q.push({p.x - 1, p.y});
+        if (p.y > -maxY)
+            q.push({p.x, p.y - 1});
+        if (p.x < maxX - 1)
+            q.push({p.x + 1, p.y});
+        if (p.y < maxY - 1)
+            q.push({p.x, p.y + 1});
     }
+
+    // Copy memory back to screen, aligning DIB's (0,0) to logical (-400,-300)
+    BitBlt(hdc, -maxX, -maxY, 2 * maxX, 2 * maxY, memDC, 0, 0, SRCCOPY);
+
+    SelectObject(memDC, oldBmp);
+    DeleteObject(hBmp);
+    DeleteDC(memDC);
 }
 
 std::set<COLORREF> BackgroundColors = {
