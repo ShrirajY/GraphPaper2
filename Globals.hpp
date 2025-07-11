@@ -101,10 +101,32 @@ class ColorBG
     }
 };
 
+HMENU CreateAppMenuBar()
+{
+    HMENU hMenuBar = CreateMenu();
+    HMENU hFileMenu = CreateMenu();
+    HMENU hHelpMenu = CreateMenu();
+
+    AppendMenu(hFileMenu, MF_STRING, 1001, TEXT("Open"));
+    AppendMenu(hFileMenu, MF_STRING, 1002, TEXT("Exit"));
+    AppendMenu(hHelpMenu, MF_STRING, 2001, TEXT("About"));
+
+    AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFileMenu, TEXT("File"));
+    AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelpMenu, TEXT("Help"));
+
+    return hMenuBar;
+}
+
 int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse
 int ActiveFeature = 0; // 0 for Draw Arrows, 1 for Fill Color, 2 for Select Shape
 
 int SelectedShape = 0; // 1 for Line, 2 for Circle, 3 for Ellipse
 // In your window class or as globals:
 COLORREF OldColor = RGB(0, 0, 0); // Default color for shapes
+
+
+HBITMAP hCanvas = nullptr;
+HDC hCanvasDC = nullptr;
+void *canvasBits = nullptr;
+
 #endif // GLOBALS_HPP

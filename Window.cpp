@@ -69,6 +69,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HDC hdc = GetDC(hwnd);
         ReleaseDC(hwnd, hdc);
 
+        HMENU hMenuBar = CreateAppMenuBar();
+        SetMenu(hwnd, hMenuBar);
+
+        SetMenu(hwnd, hMenuBar);
+
         gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         gbLine = new GroupBoxLine();
@@ -251,9 +256,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             FloodFillCustom(hdc, point.x, point.y, ReverseColor, BackgroundColors);
         }
 
-        
-
-        // 
+        //
         // MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
         // MessageBox(NULL, TEXT("Hit Test"), TEXT("Hit Test"), MB_OK);
         Arrow::DisableEditIfInBounds(hMain);
@@ -276,13 +279,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_RBUTTONDOWN:
     {
-        if(ActiveFeature == 0)
+        if (ActiveFeature == 0)
         {
             g_drawing = false; // Stop drawing arrows on right-click
             ActiveFeature = -1;
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
-        else if(ActiveFeature == -1)
+        else if (ActiveFeature == -1)
         {
             g_drawing = true; // Resume drawing arrows on right-click
             ActiveFeature = 0;

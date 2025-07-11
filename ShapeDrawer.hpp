@@ -52,8 +52,8 @@ void ShapeDrawer::DrawLine(Line* line) const
     int endX = static_cast<int>(line->x2_ * Scale);
     int endY = static_cast<int>(line->y2_ * Scale);
 
-    DrawPoint(line->x1_, line->y1_, line->color_, LinePointSize);
-    DrawPoint(line->x2_, line->y2_, line->color_, LinePointSize);
+    // DrawPoint(line->x1_, line->y1_, line->color_, LinePointSize);
+    // DrawPoint(line->x2_, line->y2_, line->color_, LinePointSize);
 
     MoveToEx(hdc_, startX, startY, NULL);
     LineTo(hdc_, endX, endY);
