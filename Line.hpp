@@ -21,6 +21,26 @@ public:
         return color_;
     }
 
+    float getX1() const
+    {
+        return x1_;
+    }
+
+    float getY1() const
+    {
+        return y1_;
+    }
+
+    float getX2() const
+    {
+        return x2_;
+    }
+
+    float getY2() const
+    {
+        return y2_;
+    }
+
     bool operator==(const Line& other) const
     {
         return (x1_ == other.x1_ && y1_ == other.y1_ && x2_ == other.x2_ && y2_ == other.y2_);

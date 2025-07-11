@@ -24,7 +24,9 @@ public:
     void SetColor(COLORREF color) { color_ = color; }
 
     COLORREF GetColor() const { return color_; }
-
+    float GetCenterX() const { return centerX_; }
+    float GetCenterY() const { return centerY_; }
+    float GetRadius() const { return radius_; }
     friend class ShapeDrawer;
     friend class ShapeManager;
     friend class ShowShapesInfo;

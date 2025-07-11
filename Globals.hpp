@@ -2,7 +2,8 @@
 #define GLOBALS_HPP
 
 #include <windows.h>
-
+#include <vector>
+#include <string>
 HWND hMain = NULL; // Handle for the main window
 
 const int tickSpacing = 25; // Spacing between grid lines in pixels
@@ -108,13 +109,19 @@ HMENU CreateAppMenuBar()
     HMENU hHelpMenu = CreateMenu();
 
     AppendMenu(hFileMenu, MF_STRING, 1001, TEXT("Open"));
-    AppendMenu(hFileMenu, MF_STRING, 1002, TEXT("Exit"));
-    AppendMenu(hHelpMenu, MF_STRING, 2001, TEXT("About"));
+    AppendMenu(hFileMenu, MF_STRING, 1002, TEXT("Save as Image"));
+    AppendMenu(hFileMenu, MF_STRING, 1003, TEXT("Save as Code"));
+    AppendMenu(hHelpMenu, MF_STRING, 1101, TEXT("About"));
 
     AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFileMenu, TEXT("File"));
     AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelpMenu, TEXT("Help"));
 
     return hMenuBar;
+}
+std::vector<std::string> actionLog;
+
+void CodeAction(const std::string& action) {
+    actionLog.push_back(action);
 }
 
 int ActiveGroupBox = 0; // 0 for Line, 1 for Circle, 2 for Ellipse

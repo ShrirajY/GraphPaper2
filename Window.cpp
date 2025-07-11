@@ -10,6 +10,7 @@
 #include "Ellipse.hpp"
 #include "Arrow.hpp"
 #include "HitTest.hpp"
+#include "Menu.hpp"
 
 #include "DrawGB/DrawCircle.hpp"
 #include "DrawGB/DrawLine.hpp"
@@ -18,7 +19,6 @@
 
 #include "ShowInfo/ShowShapesInfo.hpp"
 
-#include "Parser/parser.h"
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
@@ -72,8 +72,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HMENU hMenuBar = CreateAppMenuBar();
         SetMenu(hwnd, hMenuBar);
 
-        SetMenu(hwnd, hMenuBar);
-
         gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         gbLine = new GroupBoxLine();
@@ -91,9 +89,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ShowWindow(hDGBCircle, SW_HIDE);
         ShowWindow(hDGBEllipse, SW_HIDE);
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-
-        char filename[] = "shapes.txt";
-        parse(filename);
         InvalidateRect(hwnd, NULL, TRUE);
         return 0;
     }
@@ -169,6 +164,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             int selectedIndex = SendMessage(hDropDownFeature, CB_GETCURSEL, 0, 0);
             ActiveFeature = selectedIndex;    // Update active feature based on selection
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
+        }
+
+        if (LOWORD(wParam) == 1001) // Open menu item
+        {
+            const TCHAR *selectedFile = ShowOpenFileDialog(hwnd);
+            if (selectedFile)
+            {
+#ifdef UNICODE
+                wcstombs(filename, selectedFile, sizeof(filename));
+#else
+                strncpy(filename, selectedFile, sizeof(filename));
+                filename[sizeof(filename) - 1] = '\0';
+#endif
+
+                Parsefile(hwnd, filename);
+            }
+            break;
+        }
+
+        if (LOWORD(wParam) == 1002) // Save menu item
+        {
+            // Show Save As dialog
+            ShowSaveImageFileDialog(hwnd);
+            break;
+        }
+
+        if (LOWORD(wParam) == 1003) // Save Log menu item
+        {
+            ShowSaveFileDialog(hwnd);
+            break;
         }
 
         if (HIWORD(wParam) == EN_SETFOCUS)

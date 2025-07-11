@@ -5,6 +5,10 @@
 #include "Circle.hpp"
 #include "Line.hpp"
 #include "Ellipse.hpp"
+#include "Parser/parser.h" // Assuming this is where the Parsefile function is defined
+
+void WriteLogToAction();
+
 class ShapeDrawer
 {
 public:
@@ -15,6 +19,8 @@ public:
     void DrawRectangle(float x1, float y1, float x2, float y2, COLORREF color) const;
     void DrawCircle(Circle* circle) const;
     void DrawEllipse(Ellipse_* ellipse) const;
+
+
 
     static constexpr int Scale = 25;
     static constexpr int DefaultPointSize = 5;
@@ -57,6 +63,7 @@ void ShapeDrawer::DrawLine(Line* line) const
 
     MoveToEx(hdc_, startX, startY, NULL);
     LineTo(hdc_, endX, endY);
+    
 
     SelectObject(hdc_, oldPen);
     DeleteObject(hPen);
@@ -124,3 +131,69 @@ void ShapeDrawer::DrawEllipse(Ellipse_* ellipse) const
     SelectObject(hdc_, oldPen);
     DeleteObject(hPen);
 }
+
+
+void Parsefile(HWND hwnd, char* filename)
+{
+    int response = MessageBox(hwnd, TEXT("Do you want to keep previous drawing?"), TEXT("Confirm"), MB_YESNO | MB_ICONQUESTION);
+    if(response ==  IDNO)
+    {
+        lineList.clear();
+        CircleList.clear();
+        ellipseList.clear();
+        actionLog.clear();
+    }
+    parse(filename); // Call the parse function with the filename
+    WriteLogToAction(); // Write the parsed shapes to the action log
+    InvalidateRect(hwnd, NULL, TRUE); // Redraw the window to reflect changes
+}
+
+
+void LineToLog(const Line& line)
+{
+    std::string action = "LINE: " + std::to_string(line.getX1()) + ", " + std::to_string(line.getY1()) + ", " +
+                         std::to_string(line.getX2()) + ", " + std::to_string(line.getY2()) + ", (" +
+                         std::to_string(GetRValue(line.getColor())) + ", " +
+                         std::to_string(GetGValue(line.getColor())) + ", " +
+                         std::to_string(GetBValue(line.getColor())) + ")";
+    actionLog.push_back(action);
+}
+
+void CircleToLog(const Circle& circle)
+{
+    std::string action = "CIRCLE: " + std::to_string(circle.GetCenterX()) + ", " + std::to_string(circle.GetCenterY()) + ", " +
+                         std::to_string(circle.GetRadius()) + ", (" +
+                         std::to_string(GetRValue(circle.GetColor())) + ", " +
+                         std::to_string(GetGValue(circle.GetColor())) + ", " +
+                         std::to_string(GetBValue(circle.GetColor())) + ")";
+    actionLog.push_back(action);
+}
+
+void EllipseToLog(const Ellipse_& ellipse)
+{
+    std::string action = "ELLIPSE: " + std::to_string(ellipse.getCenterX()) + ", " + std::to_string(ellipse.getCenterY()) + ", " +
+                         std::to_string(ellipse.getA()) + ", " + std::to_string(ellipse.getB()) + ", " +
+                         std::to_string(ellipse.getAngle()) + ", (" +
+                         std::to_string(GetRValue(ellipse.getColor())) + ", " +
+                         std::to_string(GetGValue(ellipse.getColor())) + ", " +
+                         std::to_string(GetBValue(ellipse.getColor())) + ")";
+    actionLog.push_back(action);
+}
+
+void WriteLogToAction()
+{
+    for(const auto& line: lineList)
+    {
+        LineToLog(line);
+    }
+
+    for(const auto& circle: CircleList)
+    {
+        CircleToLog(circle);
+    }
+
+    for(const auto& ellipse: ellipseList)
+    {
+        EllipseToLog(ellipse);
+    }
+}   

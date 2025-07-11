@@ -74,8 +74,14 @@ public:
                 Circle temp = GroupBoxCircle::CollectCircle(hDGBCircle);
                 temp.SetColor(currColor); // Assuming currColor is defined globally or passed in some way
                 AddCircle(temp);
+                // CIRCLE: 6, 8, 6, 9.5, (222, 184, 135)
+                std::string action = "CIRCLE: " + std::to_string(temp.GetCenterX()) + ", " + std::to_string(temp.GetCenterY()) + ", " +
+                                     std::to_string(temp.GetRadius()) + ", (" +
+                                     std::to_string(GetRValue(temp.GetColor())) + ", " +
+                                     std::to_string(GetGValue(temp.GetColor())) + ", " +
+                                     std::to_string(GetBValue(temp.GetColor())) + ")";
+                CodeAction(action);
                 InvalidateRect(hShowInfo, NULL, TRUE);
-                // SendMessage(hCircleDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);
             }
             else if (LOWORD(wParam) == 1)

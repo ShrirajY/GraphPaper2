@@ -20,7 +20,26 @@ public:
     {
         return color_;
     }
-
+    float getCenterX() const
+    {
+        return centerX_;
+    }
+    float getCenterY() const
+    {
+        return centerY_;
+    }
+    float getA() const
+    {
+        return a_;
+    }
+    float getB() const
+    {
+        return b_;
+    }
+    float getAngle() const
+    {
+        return angle_;
+    }
     bool operator==(const Ellipse_& other) const
     {
         return (centerX_ == other.centerX_ && centerY_ == other.centerY_ &&

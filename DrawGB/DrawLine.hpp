@@ -72,6 +72,12 @@ public:
                 Line temp = GroupBoxLine::CollectLine(hwnd);
                 temp.setColor(currColor); // Assuming currColor is defined globally or passed in some way
                 AddLine(temp);
+                // LINE: 6, 8, 6, 9.5, (222, 184, 135)
+                std::string action = "LINE: " + std::to_string(temp.getX1()) + ", " + std::to_string(temp.getY1()) + ", " +
+                                     std::to_string(temp.getX2()) + ", " + std::to_string(temp.getY2()) + ", (" +
+                                     std::to_string(GetRValue(temp.getColor())) + ", " + std::to_string(GetGValue(temp.getColor())) + ", " +
+                                     std::to_string(GetBValue(temp.getColor())) + ")";
+                CodeAction(action);
                 InvalidateRect(hShowInfo, NULL, TRUE);
                 // SendMessage(hLineDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);
