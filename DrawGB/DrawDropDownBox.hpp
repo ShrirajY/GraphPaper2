@@ -19,6 +19,7 @@ void DrawDropDownBox(HWND hwnd, HINSTANCE hInstance)
     SendMessage(hDropDown, CB_ADDSTRING, 0, (LPARAM)TEXT("Line"));
     SendMessage(hDropDown, CB_ADDSTRING, 0, (LPARAM)TEXT("Circle"));
     SendMessage(hDropDown, CB_ADDSTRING, 0, (LPARAM)TEXT("Ellipse"));
+    SendMessage(hDropDown, CB_ADDSTRING, 0, (LPARAM)TEXT("Parabola"));
 
     // Set the default selection
     SendMessage(hDropDown, CB_SETCURSEL, 0, 0);

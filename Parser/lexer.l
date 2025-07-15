@@ -9,6 +9,7 @@
 LINE             { return LINE; }
 CIRCLE           { return CIRCLE; }
 ELLIPSE          { return ELLIPSE; }
+PARABOLA         { return PARABOLA; }
 ":"              { return ':'; }
 ","              { return ','; }
 "("              { return '('; }

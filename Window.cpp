@@ -8,6 +8,7 @@
 #include "Circle.hpp"
 #include "Line.hpp"
 #include "Ellipse.hpp"
+#include "Parabola.hpp"
 #include "Arrow.hpp"
 #include "HitTest.hpp"
 #include "Menu.hpp"
@@ -16,6 +17,7 @@
 #include "DrawGB/DrawLine.hpp"
 #include "DrawGB/DrawEllipse.hpp"
 #include "DrawGB/DrawDropDownBox.hpp"
+#include "DrawGB/DrawParabola.hpp"
 
 #include "ShowInfo/ShowShapesInfo.hpp"
 
@@ -61,6 +63,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     static GroupBoxEllipse *gbEllipse = nullptr;
     static GroupBoxLine *gbLine = nullptr;
     static GroupBoxCircle *gbCircle = nullptr;
+    static GroupBoxParabola *gbParabola = nullptr;
     static ShowShapesInfo *showShapesInfo = nullptr;
     switch (msg)
     {
@@ -74,11 +77,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        
         gbLine = new GroupBoxLine();
         gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
         gbEllipse = new GroupBoxEllipse();
         gbEllipse->DrawGroupBoxEllipse(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        gbParabola = new GroupBoxParabola();
+        gbParabola->DrawGroupBoxParabola(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
         showShapesInfo = new ShowShapesInfo();
         showShapesInfo->DrawShowGroupBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
@@ -88,6 +95,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ShowWindow(hDGBLine, SW_SHOW);
         ShowWindow(hDGBCircle, SW_HIDE);
         ShowWindow(hDGBEllipse, SW_HIDE);
+        ShowWindow(hDGBParabola, SW_HIDE);
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         InvalidateRect(hwnd, NULL, TRUE);
         return 0;
@@ -119,6 +127,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             shapeDrawer.DrawEllipse(&ellipse);
         }
+        for (Parabola &parabola : parabolaList)
+        {
+            shapeDrawer.DrawParabola(&parabola);
+        }
         // FillBox(hDGBCircle, RGB(100, 100, 100));
         // FillBox(hDGBLine, RGB(100, 100, 100));
 
@@ -133,6 +145,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         else if (ActiveGroupBox == 2)
         {
             FillBox(hDGBEllipse, grayCColor);
+        }
+        else if (ActiveGroupBox == 3)
+        {
+            FillBox(hDGBParabola, grayCColor);
         }
 
         if (hShowInfo)
@@ -156,6 +172,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ShowWindow(hDGBLine, selectedIndex == 0 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBCircle, selectedIndex == 1 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBEllipse, selectedIndex == 2 ? SW_SHOW : SW_HIDE);
+            ShowWindow(hDGBParabola, selectedIndex == 3 ? SW_SHOW : SW_HIDE);
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
 
@@ -215,8 +232,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_CTLCOLORSTATIC:
     {
         HWND hCtrl = (HWND)lParam;
-        if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse)
+        if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse || hCtrl == hDGBParabola)
         {
+            // Set the background color for the group boxes
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
         }
         if (hCtrl == hShowInfo)

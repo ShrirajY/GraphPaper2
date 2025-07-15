@@ -5,6 +5,7 @@
 #include "../Circle.hpp"
 #include "../Ellipse.hpp"
 #include "../Line.hpp"
+#include "../Parabola.hpp"
 int yylex(void);
 int yyerror(const char *s);
 extern FILE *yyin; // Declare yyin for Flex
@@ -15,7 +16,7 @@ extern FILE *yyin; // Declare yyin for Flex
     int  ival;
 }
 
-%token LINE CIRCLE ELLIPSE
+%token LINE CIRCLE ELLIPSE PARABOLA
 %token <fval> FLOAT_NUM
 %token <ival> NUMBER
 
@@ -46,6 +47,10 @@ shape:
         { printf("Found ELLIPSE: center=(%.2f,%.2f) a=%.2f b=%.2f angle=%.2f color=(%d,%d,%d)\n", $3, $5, $7, $9, $11, $14, $16, $18);
           Ellipse_ ellipse = Ellipse_::Create($3, $5, $7, $9, $11, RGB($14, $16, $18));
           AddEllipse(ellipse);}
+  | PARABOLA ':' num ',' num ',' num ',' num ',' num ',' num ',' '(' NUMBER ',' NUMBER ',' NUMBER ')'
+        { printf("Found PARABOLA: focus=(%.2f,%.2f) directrix=%.2f color=(%d,%d,%d)\n", $3, $5, $7, $11, $13, $16);
+          Parabola parabola = Parabola::CreateFrom3Points($3, $5, $7, $9, $11, $13, RGB($16, $18, $20));
+          AddParabola(parabola);}
 ;
 
 %%
