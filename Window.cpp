@@ -131,6 +131,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             shapeDrawer.DrawParabola(&parabola);
         }
+
+        for(const auto& floodFillPoint : floodFillPointsList)
+        {
+            FloodFillCustom(hdc, floodFillPoint.first.x, floodFillPoint.first.y, floodFillPoint.second, BackgroundColors);
+        }
+
         // FillBox(hDGBCircle, RGB(100, 100, 100));
         // FillBox(hDGBLine, RGB(100, 100, 100));
 
@@ -296,7 +302,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             COLORREF ReverseColor = RGB(GetBValue(currColor),
                                         GetGValue(currColor),
                                         GetRValue(currColor));
-            FloodFillCustom(hdc, point.x, point.y, ReverseColor, BackgroundColors);
+            std::pair<POINT, COLORREF> floodFillPoint(point, ReverseColor);
+            floodFillPointsList.push_back(floodFillPoint);
+            InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
 
         //

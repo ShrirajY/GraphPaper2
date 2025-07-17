@@ -301,6 +301,7 @@ void Parsefile(HWND hwnd, char *filename)
         ellipseList.clear();
         parabolaList.clear();
         actionLog.clear();
+        floodFillPointsList.clear();
     }
     parse(filename);                  // Call the parse function with the filename
     WriteLogToAction();               // Write the parsed shapes to the action log

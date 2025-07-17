@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <vector>
 #include <string>
+#include <utility>
 HWND hMain = NULL; // Handle for the main window
 
 const int tickSpacing = 25; // Spacing between grid lines in pixels
@@ -121,6 +122,8 @@ HMENU CreateAppMenuBar()
     return hMenuBar;
 }
 std::vector<std::string> actionLog;
+std::vector<std::pair<POINT, COLORREF>> floodFillPointsList;
+
 
 void CodeAction(const std::string& action) {
     actionLog.push_back(action);
