@@ -1,0 +1,36 @@
+// FACE (circle, dark yellow)
+CIRCLE: 7.0, -3.0, 2.0, (218, 165, 32)    // centerX, centerY, radius, color
+
+// EYES (black vertical lines)
+LINE: 6.2, -2.4, 6.2, -2.1, (0, 0, 0)      // Left eye
+LINE: 7.8, -2.4, 7.8, -2.1, (0, 0, 0)      // Right eye
+
+// SMILE (black arc)
+PARABOLA: 6.2, -3.7, 7.0, -4.3, 7.8, -3.7, (0, 0, 0)
+
+
+// CONE PARTY HAT (triangle pointing up, dark red/green)
+LINE: 7.0, 1.0, 6.2, -1.5, (139, 0, 0)    // Left edge
+LINE: 7.0, 1.0, 7.8, -1.5, (139, 0, 0)    // Right edge
+LINE: 6.2, -1.5, 7.8, -1.5, (0, 100, 0)   // Bottom base (rests on head)
+
+// HAT CONFETTI / DECOR
+LINE: 7.0, 1.0, 7.0, 1.4, (105, 105, 105)     // Center spike
+LINE: 6.8, 1.0, 6.7, 1.3, (0, 139, 139)       // Left spark
+LINE: 7.2, 1.0, 7.3, 1.3, (139, 69, 19)       // Right spark
+
+
+// PARTY POPPER CONE (angled from mouth)
+LINE: 7.0, -4.0, 8.2, -5.0, (139, 69, 19)
+LINE: 7.0, -4.0, 8.2, -5.3, (139, 69, 19)
+LINE: 8.2, -5.0, 8.2, -5.3, (139, 69, 19)
+
+// POPPER STRIPES (black)
+LINE: 7.3, -4.3, 8.0, -4.9, (0, 0, 0)
+LINE: 7.4, -4.5, 8.0, -5.1, (0, 0, 0)
+
+// CONFETTI BURSTS (multi-color lines from tip)
+LINE: 8.2, -5.0, 9.0, -4.4, (0, 0, 139)
+LINE: 8.2, -5.0, 9.1, -5.6, (0, 100, 0)
+LINE: 8.2, -5.0, 8.8, -5.9, (139, 0, 139)
+LINE: 8.2, -5.0, 9.4, -4.7, (184, 134, 11)

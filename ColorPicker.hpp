@@ -16,7 +16,7 @@ inline HWND CreateColorPickerWindow(HINSTANCE hInstance, int nCmdShow, HWND hPar
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.hbrBackground = (HBRUSH)(GRAY_BRUSH);
-
+    wc.hCursor = LoadCursorFromFile(TEXT("Bucket.cur"));
     RegisterClass(&wc);
 
     hColorPicker = CreateWindowEx(

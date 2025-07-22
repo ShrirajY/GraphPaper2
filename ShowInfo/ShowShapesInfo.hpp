@@ -4,6 +4,7 @@
 #include "../Line.hpp"
 #include "../Ellipse.hpp"
 #include "../Globals.hpp"
+#include "../Parabola.hpp"
 WNDPROC OldShowInfoProc = NULL;
 
 enum class ShapeInfoType
@@ -291,6 +292,10 @@ private:
         snprintf(buf, sizeof(buf), "- Total Ellipses: %d", (int)ellipseList.size());
         TextOutA(hdc, x, y, buf, strlen(buf));
         y += lineHeight;
+        snprintf(buf, sizeof(buf), "- Total Parabolas: %d", (int)parabolaList.size());
+        TextOutA(hdc, x, y, buf, strlen(buf));
+        y += lineHeight;
+
     }
 
     static void DrawShapeInfoPanel(

@@ -10,6 +10,7 @@ LINE             { return LINE; }
 CIRCLE           { return CIRCLE; }
 ELLIPSE          { return ELLIPSE; }
 PARABOLA         { return PARABOLA; }
+FILLCOLOR        { return FILLCOLOR; }
 ":"              { return ':'; }
 ","              { return ','; }
 "("              { return '('; }

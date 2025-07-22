@@ -43,8 +43,9 @@
      CIRCLE = 259,
      ELLIPSE = 260,
      PARABOLA = 261,
-     FLOAT_NUM = 262,
-     NUMBER = 263
+     FILLCOLOR = 262,
+     FLOAT_NUM = 263,
+     NUMBER = 264
    };
 #endif
 
@@ -63,7 +64,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 67 "parser.tab.h"
+#line 68 "parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

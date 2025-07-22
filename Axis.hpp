@@ -113,7 +113,7 @@ void AxisDrawer::DrawGrid()
 #include <queue>
 #include <set>
 
-void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const std::set<COLORREF> &stopColors)
+void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::set<COLORREF> stopColors)
 {
     const int maxX = 400;
     const int maxY = 300;
@@ -155,8 +155,8 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const 
     };
 
     COLORREF startColor = getPixel(startX, startY);
-
-    if (!stopColors.count(startColor) || startColor == fillColor)
+    stopColors.insert(startColor);
+    if (startColor == fillColor)
     {
         SelectObject(memDC, oldBmp);
         DeleteObject(hBmp);
@@ -195,6 +195,20 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, const 
     SelectObject(memDC, oldBmp);
     DeleteObject(hBmp);
     DeleteDC(memDC);
+}
+
+void AddFloodFillPoint(HWND hwnd, std::pair<POINT, COLORREF> floodFillPoint)
+{
+    int startX = floodFillPoint.first.x;
+    int startY = floodFillPoint.first.y;
+    COLORREF fillColor = floodFillPoint.second;
+    POINT pt = {startX, startY};
+    std::string action = "FILLCOLOR: " + std::to_string(startX) + ", " + std::to_string(startY) + ",(" +
+                         std::to_string(GetBValue(fillColor)) + ", " +
+                         std::to_string(GetGValue(fillColor)) + ", " +
+                         std::to_string(GetRValue(fillColor)) + ")";
+    CodeAction(action);
+    floodFillPointsList.push_back({pt, fillColor});
 }
 
 std::set<COLORREF> BackgroundColors = {

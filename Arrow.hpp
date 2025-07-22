@@ -127,6 +127,8 @@ public:
         while (head_)
         {
             Arrow *next = head_->next_;
+            // clear edit box first
+            DestroyWindow(head_->hEdit);
             delete head_;
             head_ = next;
         }

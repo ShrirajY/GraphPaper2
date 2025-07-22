@@ -17,13 +17,14 @@ const int DGBIndexesLine = 1000;   // Base index for dialog group box controls
 const int DGBIndexesCircle = 1100; // Base index for circle controls
 const int DGBIndexesEllipse = 1200; // Base index for ellipse controls
 const int DGBIndexesParabola = 1300; // Base index for parabola controls
+const int DGBIndexesImages = 1500; // Base index for image controls
 // Group Box for Drawing
 int DGBwidth = 250;
 int DGBHeight = 150;
 int ShowInfoGBWidth = 350;
 int ShowInfoGBHeight = 400;
 int DDBwidth = 260; // Width of the drop-down box
-int DDBHeight = 100; // Height of the drop-down box
+int DDBHeight = 160; // Height of the drop-down box
 
 int DGroupBoxLeft = 800 + 30;
 int DGroupBoxTop = 40;
@@ -36,6 +37,7 @@ HWND hDGBCircle = NULL;  // Handle for the Circle group box
 HWND hDGBLine = NULL;    // Handle for the Line group box
 HWND hDGBEllipse = NULL; // Handle for the Ellipse group box
 HWND hDGBParabola = NULL; // Handle for the Parabola group box
+HWND hDGBImages = NULL;  // Handle for the Images group box
 HWND hDropDown = NULL;   // Handle for the drop-down box
 HWND hDropDownFeature = NULL; // Handle for the feature drop-down box
 HWND hColorPicker = NULL;
@@ -110,14 +112,17 @@ HMENU CreateAppMenuBar()
     HMENU hMenuBar = CreateMenu();
     HMENU hFileMenu = CreateMenu();
     HMENU hHelpMenu = CreateMenu();
+    HMENU hEditMenu = CreateMenu();
 
     AppendMenu(hFileMenu, MF_STRING, 1001, TEXT("Open"));
     AppendMenu(hFileMenu, MF_STRING, 1002, TEXT("Save as Image"));
     AppendMenu(hFileMenu, MF_STRING, 1003, TEXT("Save as Code"));
     AppendMenu(hHelpMenu, MF_STRING, 1101, TEXT("About"));
+    AppendMenu(hEditMenu, MF_STRING, 1201, TEXT("Reset Graph"));
 
     AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hFileMenu, TEXT("File"));
     AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hHelpMenu, TEXT("Help"));
+    AppendMenu(hMenuBar, MF_POPUP, (UINT_PTR)hEditMenu, TEXT("Edit"));
 
     return hMenuBar;
 }

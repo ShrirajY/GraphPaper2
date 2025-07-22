@@ -35,8 +35,6 @@ public:
                 // line.setColor(RGB(255, 255, 0));   // Change color to yellow for hit
                 SelectedLine = &line; // Store the selected line
                 SelectedShape = 1;   // Set selected shape to Line
-                InvalidateRect(hMain, NULL, TRUE); // Redraw the window
-                MessageBox(NULL, TEXT("Line selected"), TEXT("Hit Test"), MB_OK);
                 SetTimer(hMain, 1, 100, NULL); // Set a timer for highlighting
                 InvalidateRect(hMain, NULL, TRUE); // Redraw the window
                 return "Line";
@@ -47,11 +45,11 @@ public:
         {
             if (IsPointOnCircle(x, y, circle.centerX_, circle.centerY_, circle.radius_, tol))
             {
-                SelectedCircle = &circle; // Store the selected circle
                 OldColor = circle.GetColor(); // Store the old color
+                SelectedCircle = &circle; // Store the selected circle
                 SelectedShape = 2;       // Set selected shape to Circle
+                SetTimer(hMain, 1, 100, NULL); // Set a timer for highlighting
                 InvalidateRect(hMain, NULL, TRUE); // Redraw the window
-                MessageBox(NULL, TEXT("Circle selected"), TEXT("Hit Test"), MB_OK);
                 return "Circle";
             }
         }
@@ -60,14 +58,15 @@ public:
         {
             if (IsPointOnEllipse(x, y, ellipse.centerX_, ellipse.centerY_, ellipse.a_, ellipse.b_, tol, ellipse.angle_))
             {
-                SelectedEllipse = &ellipse; // Store the selected ellipse
                 OldColor = ellipse.getColor(); // Store the old color
+                SelectedEllipse = &ellipse; // Store the selected ellipse
                 SelectedShape = 3;       // Set selected shape to Ellipse
+                SetTimer(hMain, 1, 100, NULL); // Set a timer for highlighting
                 InvalidateRect(hMain, NULL, TRUE); // Redraw the window
-                MessageBox(NULL, TEXT("Ellipse selected"), TEXT("Hit Test"), MB_OK);
                 return "Ellipse";
             }
         }
+        
         return "None";
     }
 

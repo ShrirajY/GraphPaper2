@@ -8,6 +8,8 @@
 #include "Ellipse.hpp"
 #include "Parabola.hpp"
 #include "Parser/parser.h" // Assuming this is where the Parsefile function is defined
+#include "ImageLoading/Image.hpp"
+#include "Arrow.hpp"
 
 void WriteLogToAction();
 
@@ -302,6 +304,8 @@ void Parsefile(HWND hwnd, char *filename)
         parabolaList.clear();
         actionLog.clear();
         floodFillPointsList.clear();
+        g_images.clear();
+        g_arrows.Clear();
     }
     parse(filename);                  // Call the parse function with the filename
     WriteLogToAction();               // Write the parsed shapes to the action log

@@ -2,6 +2,10 @@
 #include <cmath>
 #include <windowsx.h>
 #include <tchar.h>
+#include <mmsystem.h>  // For PlaySound
+#pragma comment(lib, "winmm.lib")
+
+
 #include "Axis.hpp"
 #include "ShapeDrawer.hpp"
 #include "Globals.hpp"
@@ -18,6 +22,10 @@
 #include "DrawGB/DrawEllipse.hpp"
 #include "DrawGB/DrawDropDownBox.hpp"
 #include "DrawGB/DrawParabola.hpp"
+#include "DrawGB/DrawImage.hpp"
+
+#include "ImageLoading/Image.hpp"
+#include "About/About.hpp"
 
 #include "ShowInfo/ShowShapesInfo.hpp"
 
@@ -30,9 +38,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = TEXT("CubeWinClass");
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // Dark blue background
+    wc.hIcon = (HICON)LoadImage(NULL, TEXT("Logo.ico"),
+    IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
     RegisterClass(&wc);
-
     RECT desired = {0, 0, 800, 600};
     AdjustWindowRect(&desired, WS_OVERLAPPEDWINDOW, FALSE);
 
@@ -64,7 +73,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     static GroupBoxLine *gbLine = nullptr;
     static GroupBoxCircle *gbCircle = nullptr;
     static GroupBoxParabola *gbParabola = nullptr;
+    static GroupBoxImage *gbImage = nullptr;
     static ShowShapesInfo *showShapesInfo = nullptr;
+    static ImageManager *imageManager = new ImageManager();
     switch (msg)
     {
     case WM_CREATE:
@@ -75,9 +86,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HMENU hMenuBar = CreateAppMenuBar();
         SetMenu(hwnd, hMenuBar);
 
+        PlaySound(TEXT("C:\\Users\\Shriraj Mardi\\Downloads\\Interstellar.wav"), NULL,
+              SND_FILENAME | SND_ASYNC | SND_LOOP);
+
         gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
-        
+
         gbLine = new GroupBoxLine();
         gbLine->DrawGroupBoxLine(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
@@ -86,6 +100,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         gbParabola = new GroupBoxParabola();
         gbParabola->DrawGroupBoxParabola(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+
+        gbImage = new GroupBoxImage();
+        gbImage->DrawGroupBoxImage(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
 
         showShapesInfo = new ShowShapesInfo();
         showShapesInfo->DrawShowGroupBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
@@ -96,6 +113,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ShowWindow(hDGBCircle, SW_HIDE);
         ShowWindow(hDGBEllipse, SW_HIDE);
         ShowWindow(hDGBParabola, SW_HIDE);
+        ShowWindow(hDGBImages, SW_HIDE);
         DrawDropDownBox(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
         InvalidateRect(hwnd, NULL, TRUE);
         return 0;
@@ -132,10 +150,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             shapeDrawer.DrawParabola(&parabola);
         }
 
-        for(const auto& floodFillPoint : floodFillPointsList)
+        for (const auto &floodFillPoint : floodFillPointsList)
         {
             FloodFillCustom(hdc, floodFillPoint.first.x, floodFillPoint.first.y, floodFillPoint.second, BackgroundColors);
         }
+
+        imageManager->DrawAllImages(hdc);
 
         // FillBox(hDGBCircle, RGB(100, 100, 100));
         // FillBox(hDGBLine, RGB(100, 100, 100));
@@ -155,6 +175,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         else if (ActiveGroupBox == 3)
         {
             FillBox(hDGBParabola, grayCColor);
+        }
+        else if (ActiveGroupBox == 4)
+        {
+            FillBox(hDGBImages, grayCColor);
         }
 
         if (hShowInfo)
@@ -179,13 +203,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             ShowWindow(hDGBCircle, selectedIndex == 1 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBEllipse, selectedIndex == 2 ? SW_SHOW : SW_HIDE);
             ShowWindow(hDGBParabola, selectedIndex == 3 ? SW_SHOW : SW_HIDE);
+            ShowWindow(hDGBImages, selectedIndex == 4 ? SW_SHOW : SW_HIDE);
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
 
         if (LOWORD(wParam) == 2002 && HIWORD(wParam) == CBN_SELCHANGE)
         {
             int selectedIndex = SendMessage(hDropDownFeature, CB_GETCURSEL, 0, 0);
-            ActiveFeature = selectedIndex;    // Update active feature based on selection
+            ActiveFeature = selectedIndex; // Update active feature based on selection
+
+            if (ActiveFeature == 0)
+            {
+                HCURSOR hCustomCursor = LoadCursor(NULL, IDC_ARROW);
+                SetClassLongPtr(hMain, GCLP_HCURSOR, (LONG_PTR)hCustomCursor);
+            }
+
+            if (ActiveFeature == 1)
+            {
+                HCURSOR hCustomCursor = LoadCursorFromFile(TEXT("target.cur"));
+                SetClassLongPtr(hMain, GCLP_HCURSOR, (LONG_PTR)hCustomCursor);
+            }
+
+            else if (ActiveFeature == 2)
+            {
+                HCURSOR hCustomCursor = LoadCursorFromFile(TEXT("Bucket.cur"));
+                SetClassLongPtr(hMain, GCLP_HCURSOR, (LONG_PTR)hCustomCursor);
+            }
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
 
@@ -219,6 +262,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         }
 
+        if (LOWORD(wParam) == 1101)
+        {
+            CreateDialogWindowAboutMenu(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
+        }
+
+        if (LOWORD(wParam) == 1201)
+        {
+            int response = MessageBox(hwnd, TEXT("Do you really want to reset the Graph?"), TEXT("Confirm"), MB_YESNO | MB_ICONQUESTION);
+            if (response == IDYES)
+            {
+                lineList.clear();
+                CircleList.clear();
+                ellipseList.clear();
+                parabolaList.clear();
+                actionLog.clear();
+                floodFillPointsList.clear();
+                g_images.clear();
+                g_arrows.Clear();
+            }
+            InvalidateRect(hwnd, NULL, TRUE);
+        }
+
         if (HIWORD(wParam) == EN_SETFOCUS)
         {
             HWND hNewFocus = (HWND)lParam;
@@ -238,7 +303,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_CTLCOLORSTATIC:
     {
         HWND hCtrl = (HWND)lParam;
-        if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse || hCtrl == hDGBParabola)
+        if (hCtrl == hDGBCircle || hCtrl == hDGBLine || hCtrl == hDGBEllipse || hCtrl == hDGBParabola || hCtrl == hDGBImages)
         {
             // Set the background color for the group boxes
             return ColorBG::ColorBGOpaque((HDC)wParam, grayCColor, redCColor);
@@ -303,10 +368,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                         GetGValue(currColor),
                                         GetRValue(currColor));
             std::pair<POINT, COLORREF> floodFillPoint(point, ReverseColor);
-            floodFillPointsList.push_back(floodFillPoint);
+            AddFloodFillPoint(hwnd, floodFillPoint);
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
-
         //
         // MessageBox(hwnd, buffer, TEXT("Coordinates"), MB_OK);
         // MessageBox(NULL, TEXT("Hit Test"), TEXT("Hit Test"), MB_OK);
