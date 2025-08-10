@@ -155,7 +155,6 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::s
     };
 
     COLORREF startColor = getPixel(startX, startY);
-    stopColors.insert(startColor);
     if (startColor == fillColor)
     {
         SelectObject(memDC, oldBmp);

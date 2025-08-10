@@ -280,7 +280,7 @@ private:
     static void DrawOverallInfo(HDC hdc, int x, int &y, int lineHeight)
     {
         char buf[128];
-        snprintf(buf, sizeof(buf), "- Total Shapes: %d", (int)(lineList.size() + CircleList.size() + ellipseList.size()));
+        snprintf(buf, sizeof(buf), "- Total Shapes: %d", (int)(lineList.size() + CircleList.size() + ellipseList.size() + parabolaList.size()));
         TextOutA(hdc, x, y, buf, strlen(buf));
         y += lineHeight;
         snprintf(buf, sizeof(buf), "- Total Lines: %d", (int)lineList.size());

@@ -155,7 +155,7 @@ void CreateDialogWindowAboutMenu(HWND hwndOwner, HINSTANCE hInst)
     HWND hwndDialogAbout = CreateWindowEx(
         0,                              // Extended style
         TEXT("DialogWindowClassAbout"), // Window class
-        TEXT("About Dialog"),           // Window title
+        TEXT("PixelLogic"),           // Window title
         WS_OVERLAPPEDWINDOW,            // Style
         xPos,                           // X position (centered)
         yPos,                           // Y position (centered)

@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
-    wc.lpszClassName = TEXT("CubeWinClass");
+    wc.lpszClassName = TEXT("Graph Paper");
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // Dark blue background
     wc.hIcon = (HICON)LoadImage(NULL, TEXT("Logo.ico"),
     IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-    HWND hwnd = CreateWindow(TEXT("CubeWinClass"), TEXT("3D Cube in Win32 (No OpenGL)"),
+    HWND hwnd = CreateWindow(TEXT("Graph Paper"), TEXT("PixelLogic Graph Paper"),
                              WS_OVERLAPPEDWINDOW,
                              0, 0, screenWidth, screenHeight,
                              NULL, NULL, hInstance, NULL);
@@ -86,8 +86,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         HMENU hMenuBar = CreateAppMenuBar();
         SetMenu(hwnd, hMenuBar);
 
-        PlaySound(TEXT("C:\\Users\\Shriraj Mardi\\Downloads\\Interstellar.wav"), NULL,
-              SND_FILENAME | SND_ASYNC | SND_LOOP);
+        // PlaySound(TEXT("C:\\Users\\Shriraj Mardi\\Downloads\\Interstellar.wav"), NULL,
+        //       SND_FILENAME | SND_ASYNC | SND_LOOP);
 
         gbCircle = new GroupBoxCircle();
         gbCircle->DrawGroupBoxCircle(hwnd, (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE));
