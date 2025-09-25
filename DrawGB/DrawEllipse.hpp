@@ -89,13 +89,14 @@ public:
                 AddEllipse(temp);
 
                 // ELLIPSE: 4.5, 0.5, 2.5, 0.5, 0, (200, 200, 0)
-                std::string action = "ELLIPSE: " + std::to_string(temp.getCenterX()) + ", " + std::to_string(temp.getCenterY()) + ", " +
-                                     std::to_string(temp.getA()) + ", " + std::to_string(temp.getB()) + ", " +
-                                     std::to_string(temp.getAngle()) + ", (" +
-                                     std::to_string(GetRValue(temp.getColor())) + ", " +
-                                     std::to_string(GetGValue(temp.getColor())) + ", " +
-                                     std::to_string(GetBValue(temp.getColor())) + ")";
-                CodeAction(action);
+                // std::string action = "ELLIPSE: (" + std::to_string(temp.getCenterX()) + ", " + std::to_string(temp.getCenterY()) + "), " +
+                //                      std::to_string(temp.getA()) + ", " + std::to_string(temp.getB()) + ", " +
+                //                      std::to_string(temp.getAngle()) + ", (" +
+                //                      std::to_string(GetRValue(temp.getColor())) + ", " +
+                //                      std::to_string(GetGValue(temp.getColor())) + ", " +
+                //                      std::to_string(GetBValue(temp.getColor())) + ")";
+                // CodeAction(action);
+                EllipseToLog(temp);
                 InvalidateRect(hShowInfo, NULL, TRUE);
                 // SendMessage(hEllipseDBGB, WM_MSG_DB, 0, 0);
                 InvalidateRect(hMain, NULL, TRUE);

@@ -104,30 +104,51 @@ void ShapeDrawer::DrawCircle(Circle *circle) const
 
 void ShapeDrawer::DrawEllipse(Ellipse_ *ellipse) const
 {
+    // Create pen
     HPEN hPen = CreatePen(PS_SOLID, 2, ellipse->color_);
     HGDIOBJ oldPen = SelectObject(hdc_, hPen);
     HGDIOBJ oldBrush = SelectObject(hdc_, GetStockObject(HOLLOW_BRUSH));
 
-    POINT pts[EllipseSegments];
+    // Convert rotation to radians
     float rad = ellipse->angle_ * 3.14159265f / 180.0f;
+    float cosA = cosf(rad);
+    float sinA = sinf(rad);
+
+    // Scale center and axes
     float cx = ellipse->centerX_ * Scale;
     float cy = ellipse->centerY_ * Scale;
-    float ax = ellipse->a_ * Scale;
-    float by = ellipse->b_ * Scale;
+    float a = ellipse->a_ * Scale;
+    float b = ellipse->b_ * Scale;
 
-    for (int i = 0; i < EllipseSegments; i++)
+    // Adaptive segment count for smoothness
+    float circumference = 3.14159265f * (3 * (a + b) - sqrtf((3 * a + b) * (a + 3 * b)));
+    int segments = static_cast<int>(circumference / (a * 3.14159265f / 36.0f)); // max ~5° per segment
+    if (segments < 36)
+        segments = 36; // minimum 36 segments
+
+    // Allocate points
+    POINT *pts = new POINT[segments + 1]; // +1 to close ellipse
+
+    // Generate points
+    for (int i = 0; i <= segments; i++)
     {
-        float theta = i * 2.0f * 3.14159265f / EllipseSegments;
-        float x = ax * cosf(theta);
-        float y = by * sinf(theta);
-        float xr = x * cosf(rad) - y * sinf(rad);
-        float yr = x * sinf(rad) + y * cosf(rad);
+        float theta = 2.0f * 3.14159265f * i / segments;
+        float x = a * cosf(theta);
+        float y = b * sinf(theta);
+
+        // Rotate
+        float xr = x * cosA - y * sinA;
+        float yr = x * sinA + y * cosA;
+
         pts[i].x = static_cast<LONG>(cx + xr);
-        pts[i].y = static_cast<LONG>(cy - yr); // Invert Y for device coordinates
+        pts[i].y = static_cast<LONG>(cy - yr); // invert Y for device coords
     }
 
-    Polyline(hdc_, pts, EllipseSegments);
+    // Draw ellipse as polyline
+    Polyline(hdc_, pts, segments + 1);
 
+    // Cleanup
+    delete[] pts;
     SelectObject(hdc_, oldBrush);
     SelectObject(hdc_, oldPen);
     DeleteObject(hPen);
@@ -314,8 +335,8 @@ void Parsefile(HWND hwnd, char *filename)
 
 void LineToLog(const Line &line)
 {
-    std::string action = "LINE: " + std::to_string(line.getX1()) + ", " + std::to_string(line.getY1()) + ", " +
-                         std::to_string(line.getX2()) + ", " + std::to_string(line.getY2()) + ", (" +
+    std::string action = "LINE: (" + std::to_string(line.getX1()) + ", " + std::to_string(line.getY1()) + "), " +
+                         "(" + std::to_string(line.getX2()) + ", " + std::to_string(line.getY2()) + "), (" +
                          std::to_string(GetRValue(line.getColor())) + ", " +
                          std::to_string(GetGValue(line.getColor())) + ", " +
                          std::to_string(GetBValue(line.getColor())) + ")";
@@ -324,7 +345,7 @@ void LineToLog(const Line &line)
 
 void CircleToLog(const Circle &circle)
 {
-    std::string action = "CIRCLE: " + std::to_string(circle.GetCenterX()) + ", " + std::to_string(circle.GetCenterY()) + ", " +
+    std::string action = "CIRCLE: (" + std::to_string(circle.GetCenterX()) + ", " + std::to_string(circle.GetCenterY()) + "), " +
                          std::to_string(circle.GetRadius()) + ", (" +
                          std::to_string(GetRValue(circle.GetColor())) + ", " +
                          std::to_string(GetGValue(circle.GetColor())) + ", " +
@@ -334,7 +355,7 @@ void CircleToLog(const Circle &circle)
 
 void EllipseToLog(const Ellipse_ &ellipse)
 {
-    std::string action = "ELLIPSE: " + std::to_string(ellipse.getCenterX()) + ", " + std::to_string(ellipse.getCenterY()) + ", " +
+    std::string action = "ELLIPSE: (" + std::to_string(ellipse.getCenterX()) + ", " + std::to_string(ellipse.getCenterY()) + "), " +
                          std::to_string(ellipse.getA()) + ", " + std::to_string(ellipse.getB()) + ", " +
                          std::to_string(ellipse.getAngle()) + ", (" +
                          std::to_string(GetRValue(ellipse.getColor())) + ", " +

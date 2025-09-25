@@ -1,5 +1,11 @@
 %{
 #include "parser.tab.h"
+#include <stdio.h>
+#include "./Tools/Vertex.h"
+#include "./Tools/Color.h"
+#include "./Tools/Integer.h"
+#include "./Tools/Float.h"
+int yylineno = 1;   // define here
 %}
 
 %%
@@ -11,10 +17,15 @@ CIRCLE           { return CIRCLE; }
 ELLIPSE          { return ELLIPSE; }
 PARABOLA         { return PARABOLA; }
 FILLCOLOR        { return FILLCOLOR; }
+CLR              { return CLR; }
+VX               { return VX; }
+FLT              { return FLT; }
+INTEGER              { return INTEGER; }
 ":"              { return ':'; }
 ","              { return ','; }
 "("              { return '('; }
 ")"              { return ')'; }
+[a-zA-Z_][a-zA-Z0-9_]*  { yylval.sval = strdup(yytext); return IDENTIFIER; }
 [ \t\r\n]+       { /* skip whitespace */ }
 .                { /* ignore other characters */ }
 %%

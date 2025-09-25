@@ -44,8 +44,13 @@
      ELLIPSE = 260,
      PARABOLA = 261,
      FILLCOLOR = 262,
-     FLOAT_NUM = 263,
-     NUMBER = 264
+     CLR = 263,
+     VX = 264,
+     FLT = 265,
+     INTEGER = 266,
+     FLOAT_NUM = 267,
+     NUMBER = 268,
+     IDENTIFIER = 269
    };
 #endif
 
@@ -56,15 +61,20 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 14 ".\\parser.y"
+#line 26 "parser.y"
 
     float fval;
     int  ival;
+    char* sval;
+    Vertex* vertex;
+    Color* clr;
+    Integer* ivalObj;
+    Float* fvalObj;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 68 "parser.tab.h"
+#line 78 "parser.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

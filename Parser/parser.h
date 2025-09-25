@@ -68,22 +68,34 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 1 ".\\parser.y"
+#line 1 "parser.y"
 
 #include <stdio.h>
+#include <cmath>
+#include <windows.h>   // For MessageBox
 #include "lex.yy.h"
 #include "../Globals.hpp"
 #include "../Circle.hpp"
 #include "../Ellipse.hpp"
 #include "../Line.hpp"
 #include "../Parabola.hpp"
+#include "../Axis.hpp"
+
+// Tools
+#include "./Tools/Vertex.h"
+#include "./Tools/Color.h"
+#include "./Tools/Integer.h"
+#include "./Tools/Float.h"
+
 int yylex(void);
 int yyerror(const char *s);
+void semantic_error(const char *msg);
 extern FILE *yyin; // Declare yyin for Flex
+extern int yylineno; // Declare yylineno for Flex
 
 
 /* Line 189 of yacc.c  */
-#line 87 "parser.tab.c"
+#line 99 "parser.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -115,8 +127,13 @@ extern FILE *yyin; // Declare yyin for Flex
      ELLIPSE = 260,
      PARABOLA = 261,
      FILLCOLOR = 262,
-     FLOAT_NUM = 263,
-     NUMBER = 264
+     CLR = 263,
+     VX = 264,
+     FLT = 265,
+     INTEGER = 266,
+     FLOAT_NUM = 267,
+     NUMBER = 268,
+     IDENTIFIER = 269
    };
 #endif
 
@@ -127,15 +144,20 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 14 ".\\parser.y"
+#line 26 "parser.y"
 
     float fval;
     int  ival;
+    char* sval;
+    Vertex* vertex;
+    Color* clr;
+    Integer* ivalObj;
+    Float* fvalObj;
 
 
 
 /* Line 214 of yacc.c  */
-#line 139 "parser.tab.c"
+#line 161 "parser.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -147,7 +169,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 151 "parser.tab.c"
+#line 173 "parser.tab.c"
 
 #ifdef short
 # undef short
@@ -362,20 +384,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   92
+#define YYLAST   81
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  14
+#define YYNTOKENS  19
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  20
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  91
+#define YYNSTATES  79
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   264
+#define YYMAXUTOK   269
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -387,8 +409,8 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      12,    13,     2,     2,    11,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    10,     2,
+      15,    17,     2,     2,    16,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    18,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -409,7 +431,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9
+       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
 };
 
 #if YYDEBUG
@@ -417,31 +439,33 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     4,     7,     9,    11,    29,    45,    65,
-      87
+       0,     0,     3,     4,     7,     9,    11,    17,    19,    25,
+      31,    37,    45,    47,    55,    63,    75,    85,    91,    96,
+     101
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      15,     0,    -1,    -1,    15,    17,    -1,     8,    -1,     9,
-      -1,     3,    10,    16,    11,    16,    11,    16,    11,    16,
-      11,    12,     9,    11,     9,    11,     9,    13,    -1,     4,
-      10,    16,    11,    16,    11,    16,    11,    12,     9,    11,
-       9,    11,     9,    13,    -1,     5,    10,    16,    11,    16,
-      11,    16,    11,    16,    11,    16,    11,    12,     9,    11,
-       9,    11,     9,    13,    -1,     6,    10,    16,    11,    16,
-      11,    16,    11,    16,    11,    16,    11,    16,    11,    12,
-       9,    11,     9,    11,     9,    13,    -1,     7,    10,    16,
-      11,    16,    11,    12,     9,    11,     9,    11,     9,    13,
-      -1
+      20,     0,    -1,    -1,    20,    24,    -1,    12,    -1,    13,
+      -1,    15,    21,    16,    21,    17,    -1,    14,    -1,    15,
+      14,    16,    14,    17,    -1,    15,    14,    16,    21,    17,
+      -1,    15,    21,    16,    14,    17,    -1,    15,    13,    16,
+      13,    16,    13,    17,    -1,    14,    -1,     3,    18,    22,
+      16,    22,    16,    23,    -1,     4,    18,    22,    16,    21,
+      16,    23,    -1,     5,    18,    22,    16,    21,    16,    21,
+      16,    21,    16,    23,    -1,     6,    18,    22,    16,    22,
+      16,    22,    16,    23,    -1,     7,    18,    22,    16,    23,
+      -1,     9,    14,    18,    22,    -1,     8,    14,    18,    23,
+      -1,    10,    14,    18,    21,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    27,    27,    29,    33,    34,    38,    42,    46,    50,
-      54
+       0,    47,    47,    49,    54,    55,    59,    60,    72,    95,
+     111,   130,   131,   146,   175,   198,   226,   254,   263,   280,
+     297
 };
 #endif
 
@@ -451,8 +475,9 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "LINE", "CIRCLE", "ELLIPSE", "PARABOLA",
-  "FILLCOLOR", "FLOAT_NUM", "NUMBER", "':'", "','", "'('", "')'",
-  "$accept", "input", "num", "shape", 0
+  "FILLCOLOR", "CLR", "VX", "FLT", "INTEGER", "FLOAT_NUM", "NUMBER",
+  "IDENTIFIER", "'('", "','", "')'", "':'", "$accept", "input",
+  "float_num", "vx", "color", "shape", 0
 };
 #endif
 
@@ -462,22 +487,24 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-      58,    44,    40,    41
+     265,   266,   267,   268,   269,    40,    44,    41,    58
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    14,    15,    15,    16,    16,    17,    17,    17,    17,
-      17
+       0,    19,    20,    20,    21,    21,    22,    22,    22,    22,
+      22,    23,    23,    24,    24,    24,    24,    24,    24,    24,
+      24
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     2,     1,     1,    17,    15,    19,    21,
-      13
+       0,     2,     0,     2,     1,     1,     5,     1,     5,     5,
+       5,     7,     1,     7,     7,    11,     9,     5,     4,     4,
+       4
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -485,45 +512,41 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,     0,     0,     0,     0,     0,     3,     0,
-       0,     0,     0,     0,     4,     5,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      10,     0,     0,     0,     0,     0,     7,     0,     0,     0,
-       0,     0,     6,     0,     0,     0,     0,     8,     0,     0,
-       9
+       2,     0,     1,     0,     0,     0,     0,     0,     0,     0,
+       0,     3,     0,     0,     0,     0,     0,     0,     0,     0,
+       7,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       4,     5,     0,     0,     0,     0,     0,     0,     0,    12,
+       0,    19,    18,    20,     0,     0,     0,     0,     0,     0,
+      17,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     8,     9,    10,     6,    13,    14,     0,     0,     0,
+       0,     0,     0,     0,    16,     0,     0,    11,    15
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,    16,     8
+      -1,     1,    33,    22,    41,    11
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -11
+#define YYPACT_NINF -30
 static const yytype_int8 yypact[] =
 {
-     -11,    32,   -11,    -3,    -2,    -1,     0,     6,   -11,    -4,
-      -4,    -4,    -4,    -4,   -11,   -11,    -5,     7,     8,     9,
-      14,    -4,    -4,    -4,    -4,    -4,    15,    16,    17,    18,
-      19,    -4,    -4,    -4,    -4,     5,    29,    30,    31,    34,
-      37,    -4,    35,    -4,    -4,    38,    39,    42,    41,    44,
-      47,    36,    46,    -4,    -4,    48,    49,    51,    50,    52,
-      53,    54,    55,    56,    -4,    40,    58,    60,    61,    62,
-     -11,    63,    59,    64,    65,    67,   -11,    69,    70,    68,
-      71,    72,   -11,    75,    76,    73,    77,   -11,    78,    79,
-     -11
+     -30,    31,   -30,   -10,    14,    25,    26,    30,    35,    36,
+      37,   -30,     8,     8,     8,     8,     8,    34,    38,    39,
+     -30,    -7,    42,    43,    44,    45,    46,    11,     8,    17,
+     -30,   -30,    47,    48,     8,    17,    17,     8,    11,   -30,
+      40,   -30,   -30,   -30,     0,     4,    49,    50,    51,    52,
+     -30,    53,    54,    55,    56,    57,    11,    11,    17,     8,
+      41,   -30,   -30,   -30,   -30,   -30,   -30,    59,    60,    61,
+      17,    11,    65,    63,   -30,    64,    11,   -30,   -30
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -11,   -11,   -10,   -11
+     -30,   -30,   -25,   -13,   -29,   -30
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -533,46 +556,42 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      17,    18,    19,    20,    14,    15,    21,     9,    10,    11,
-      12,    26,    27,    28,    29,    30,    13,    40,    22,    23,
-      24,    36,    37,    38,    39,    25,    31,    32,    33,    34,
-      35,    46,     2,    48,    49,     3,     4,     5,     6,     7,
-      41,    42,    43,    58,    59,    44,    45,    47,    56,    50,
-      51,    52,    53,    70,    69,    54,    55,    57,    61,    60,
-      62,    63,    65,    64,     0,    66,    67,    71,    68,    72,
-      73,     0,    76,    74,    75,    77,    79,    78,    80,    81,
-       0,    82,    83,    84,    85,    86,    87,    89,    88,     0,
-       0,     0,    90
+      23,    24,    25,    26,    43,    30,    31,    32,    12,    50,
+      47,    48,    30,    31,    52,    42,    30,    31,    54,    53,
+      55,    46,    20,    21,    49,    39,    40,    65,    66,    30,
+      31,     2,    13,    67,     3,     4,     5,     6,     7,     8,
+       9,    10,    74,    14,    15,    73,    68,    78,    16,    17,
+      18,    19,    27,    51,    69,     0,    28,    29,    34,    35,
+      36,    37,    38,    44,    45,    56,    57,    58,    59,    60,
+       0,    61,    62,    63,    64,    70,    71,    72,    75,    76,
+       0,    77
 };
 
 static const yytype_int8 yycheck[] =
 {
-      10,    11,    12,    13,     8,     9,    11,    10,    10,    10,
-      10,    21,    22,    23,    24,    25,    10,    12,    11,    11,
-      11,    31,    32,    33,    34,    11,    11,    11,    11,    11,
-      11,    41,     0,    43,    44,     3,     4,     5,     6,     7,
-      11,    11,    11,    53,    54,    11,     9,    12,    12,    11,
-      11,     9,    11,    13,    64,    11,     9,    11,     9,    11,
-       9,    11,     9,    11,    -1,    11,    11,     9,    12,     9,
-       9,    -1,    13,    11,    11,    11,     9,    12,     9,     9,
-      -1,    13,    11,    11,     9,     9,    13,     9,    11,    -1,
-      -1,    -1,    13
+      13,    14,    15,    16,    29,    12,    13,    14,    18,    38,
+      35,    36,    12,    13,    14,    28,    12,    13,    14,    44,
+      45,    34,    14,    15,    37,    14,    15,    56,    57,    12,
+      13,     0,    18,    58,     3,     4,     5,     6,     7,     8,
+       9,    10,    71,    18,    18,    70,    59,    76,    18,    14,
+      14,    14,    18,    13,    13,    -1,    18,    18,    16,    16,
+      16,    16,    16,    16,    16,    16,    16,    16,    16,    16,
+      -1,    17,    17,    17,    17,    16,    16,    16,    13,    16,
+      -1,    17
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    15,     0,     3,     4,     5,     6,     7,    17,    10,
-      10,    10,    10,    10,     8,     9,    16,    16,    16,    16,
-      16,    11,    11,    11,    11,    11,    16,    16,    16,    16,
-      16,    11,    11,    11,    11,    11,    16,    16,    16,    16,
-      12,    11,    11,    11,    11,     9,    16,    12,    16,    16,
-      11,    11,     9,    11,    11,     9,    12,    11,    16,    16,
-      11,     9,     9,    11,    11,     9,    11,    11,    12,    16,
-      13,     9,     9,     9,    11,    11,    13,    11,    12,     9,
-       9,     9,    13,    11,    11,     9,     9,    13,    11,     9,
-      13
+       0,    20,     0,     3,     4,     5,     6,     7,     8,     9,
+      10,    24,    18,    18,    18,    18,    18,    14,    14,    14,
+      14,    15,    22,    22,    22,    22,    22,    18,    18,    18,
+      12,    13,    14,    21,    16,    16,    16,    16,    16,    14,
+      15,    23,    22,    21,    16,    16,    22,    21,    21,    22,
+      23,    13,    14,    21,    14,    21,    16,    16,    16,    16,
+      16,    17,    17,    17,    17,    23,    23,    21,    22,    13,
+      16,    16,    16,    21,    23,    13,    16,    17,    23
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1386,69 +1405,342 @@ yyreduce:
         case 4:
 
 /* Line 1455 of yacc.c  */
-#line 33 ".\\parser.y"
-    { (yyval.fval) = (yyvsp[(1) - (1)].fval); ;}
+#line 54 "parser.y"
+    { (yyval.fvalObj) = new Float((yyvsp[(1) - (1)].fval)); ;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 34 ".\\parser.y"
-    { (yyval.fval) = (float)(yyvsp[(1) - (1)].ival); ;}
+#line 55 "parser.y"
+    { (yyval.fvalObj) = new Float((float)(yyvsp[(1) - (1)].ival)); ;}
     break;
 
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 39 ".\\parser.y"
-    { printf("Found LINE: start=(%.2f,%.2f) end=(%.2f,%.2f) color=(%d,%d,%d)\n", (yyvsp[(3) - (17)].fval), (yyvsp[(5) - (17)].fval), (yyvsp[(7) - (17)].fval), (yyvsp[(9) - (17)].fval), (yyvsp[(12) - (17)].ival), (yyvsp[(14) - (17)].ival), (yyvsp[(16) - (17)].ival));
-          Line line = Line::Create((yyvsp[(3) - (17)].fval), (yyvsp[(5) - (17)].fval), (yyvsp[(7) - (17)].fval), (yyvsp[(9) - (17)].fval), RGB((yyvsp[(12) - (17)].ival), (yyvsp[(14) - (17)].ival), (yyvsp[(16) - (17)].ival)));
-          AddLine(line);;}
+#line 59 "parser.y"
+    {(yyval.vertex)=new Vertex((yyvsp[(2) - (5)].fvalObj)->getValue(),(yyvsp[(4) - (5)].fvalObj)->getValue());;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 43 ".\\parser.y"
-    { printf("Found CIRCLE: center=(%.2f,%.2f) radius=%.2f color=(%d,%d,%d)\n", (yyvsp[(3) - (15)].fval), (yyvsp[(5) - (15)].fval), (yyvsp[(7) - (15)].fval), (yyvsp[(10) - (15)].ival), (yyvsp[(12) - (15)].ival), (yyvsp[(14) - (15)].ival));
-          Circle circle = Circle::Create((yyvsp[(3) - (15)].fval), (yyvsp[(5) - (15)].fval), (yyvsp[(7) - (15)].fval), RGB((yyvsp[(10) - (15)].ival), (yyvsp[(12) - (15)].ival), (yyvsp[(14) - (15)].ival)));
-          AddCircle(circle);;}
+#line 61 "parser.y"
+    {
+            std::string varName((yyvsp[(1) - (1)].sval));
+            try {
+                Vertex v = globalVertexSymbolTable.getVertex(varName);
+                (yyval.vertex) = new Vertex(v.getX(), v.getY());
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined variable: ") + varName).c_str());
+                (yyval.vertex) = new Vertex(0.0f, 0.0f);
+            }
+            free((yyvsp[(1) - (1)].sval));
+        ;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 47 ".\\parser.y"
-    { printf("Found ELLIPSE: center=(%.2f,%.2f) a=%.2f b=%.2f angle=%.2f color=(%d,%d,%d)\n", (yyvsp[(3) - (19)].fval), (yyvsp[(5) - (19)].fval), (yyvsp[(7) - (19)].fval), (yyvsp[(9) - (19)].fval), (yyvsp[(11) - (19)].fval), (yyvsp[(14) - (19)].ival), (yyvsp[(16) - (19)].ival), (yyvsp[(18) - (19)].ival));
-          Ellipse_ ellipse = Ellipse_::Create((yyvsp[(3) - (19)].fval), (yyvsp[(5) - (19)].fval), (yyvsp[(7) - (19)].fval), (yyvsp[(9) - (19)].fval), (yyvsp[(11) - (19)].fval), RGB((yyvsp[(14) - (19)].ival), (yyvsp[(16) - (19)].ival), (yyvsp[(18) - (19)].ival)));
-          AddEllipse(ellipse);;}
+#line 73 "parser.y"
+    {
+            std::string varNameX((yyvsp[(2) - (5)].sval));
+            std::string varNameY((yyvsp[(4) - (5)].sval));
+            float xVal, yVal;
+            try {
+                Float fX = globalFloatSymbolTable.getFloat(varNameX);
+                xVal = fX.getValue();
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined variable: ") + varNameX).c_str());
+                xVal = 0.0f;
+            }
+            try {
+                Float fY = globalFloatSymbolTable.getFloat(varNameY);
+                yVal = fY.getValue();
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined variable: ") + varNameY).c_str());
+                yVal = 0.0f;
+            }
+            (yyval.vertex) = new Vertex(xVal, yVal);
+            free((yyvsp[(2) - (5)].sval));
+            free((yyvsp[(4) - (5)].sval));
+        ;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 51 ".\\parser.y"
-    { printf("Found PARABOLA: focus=(%.2f,%.2f) directrix=%.2f color=(%d,%d,%d)\n", (yyvsp[(3) - (21)].fval), (yyvsp[(5) - (21)].fval), (yyvsp[(7) - (21)].fval), (yyvsp[(11) - (21)].fval), (yyvsp[(13) - (21)].fval), (yyvsp[(16) - (21)].ival));
-          Parabola parabola = Parabola::CreateFrom3Points((yyvsp[(3) - (21)].fval), (yyvsp[(5) - (21)].fval), (yyvsp[(7) - (21)].fval), (yyvsp[(9) - (21)].fval), (yyvsp[(11) - (21)].fval), (yyvsp[(13) - (21)].fval), RGB((yyvsp[(16) - (21)].ival), (yyvsp[(18) - (21)].ival), (yyvsp[(20) - (21)].ival)));
-          AddParabola(parabola);;}
+#line 96 "parser.y"
+    {
+            std::string varNameX((yyvsp[(2) - (5)].sval));
+            float xVal;
+            try {
+                Float fX = globalFloatSymbolTable.getFloat(varNameX);
+                xVal = fX.getValue();
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined variable: ") + varNameX).c_str());
+                xVal = 0.0f;
+            }
+            float yVal = (yyvsp[(4) - (5)].fvalObj)->getValue();
+            (yyval.vertex) = new Vertex(xVal, yVal);
+            free((yyvsp[(2) - (5)].sval));
+            delete (yyvsp[(4) - (5)].fvalObj);
+        ;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 55 ".\\parser.y"
-    { printf("Found FILLCOLOR: point=(%.2f,%.2f) color=(%d,%d,%d)\n", (yyvsp[(3) - (13)].fval), (yyvsp[(5) - (13)].fval), (yyvsp[(8) - (13)].ival), (yyvsp[(10) - (13)].ival), (yyvsp[(12) - (13)].ival));
-          POINT point = { (LONG)(yyvsp[(3) - (13)].fval), (LONG)(yyvsp[(5) - (13)].fval) };
-          COLORREF currColor = RGB((yyvsp[(12) - (13)].ival), (yyvsp[(10) - (13)].ival), (yyvsp[(8) - (13)].ival));
-          std::pair<POINT, COLORREF> floodFillPoint(point, currColor);
-          floodFillPointsList.push_back(floodFillPoint);
+#line 112 "parser.y"
+    {
+            float xVal = (yyvsp[(2) - (5)].fvalObj)->getValue();
+            std::string varNameY((yyvsp[(4) - (5)].sval));
+            float yVal;
+            try {
+                Float fY = globalFloatSymbolTable.getFloat(varNameY);
+                yVal = fY.getValue();
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined variable: ") + varNameY).c_str());
+                yVal = 0.0f;
+            }
+            (yyval.vertex) = new Vertex(xVal, yVal);
+            delete (yyvsp[(2) - (5)].fvalObj);
+            free((yyvsp[(4) - (5)].sval));
         ;}
+    break;
+
+  case 11:
+
+/* Line 1455 of yacc.c  */
+#line 130 "parser.y"
+    {(yyval.clr)=new Color((yyvsp[(2) - (7)].ival),(yyvsp[(4) - (7)].ival),(yyvsp[(6) - (7)].ival));;}
+    break;
+
+  case 12:
+
+/* Line 1455 of yacc.c  */
+#line 132 "parser.y"
+    {
+            std::string colorName((yyvsp[(1) - (1)].sval));
+            try {
+                Color c = globalColorsSymbolTable.getColor(colorName);
+                (yyval.clr) = new Color(c.getR(), c.getG(), c.getB());
+            } catch (const std::runtime_error&) {
+                semantic_error((std::string("Undefined color: ") + colorName).c_str());
+                (yyval.clr) = new Color(0, 0, 0);
+            }
+            free((yyvsp[(1) - (1)].sval));
+        ;}
+    break;
+
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 147 "parser.y"
+    {
+        float x1=(yyvsp[(3) - (7)].vertex)->getX();
+        float y1=(yyvsp[(3) - (7)].vertex)->getY();
+        float x2=(yyvsp[(5) - (7)].vertex)->getX();
+        float y2=(yyvsp[(5) - (7)].vertex)->getY();
+
+        int r=(yyvsp[(7) - (7)].clr)->getR();
+        int g=(yyvsp[(7) - (7)].clr)->getG();
+        int b=(yyvsp[(7) - (7)].clr)->getB();
+        const float EPSILON = 1e-6;
+        if (fabs(x1 - x2) < EPSILON && fabs(y1 - y2) < EPSILON) {
+              semantic_error("LINE startpoint and endpoint are identical");
+          }
+          else if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+              semantic_error("Invalid RGB values, must be in range 0-255");
+          }
+          else {
+              Line line = Line::Create(x1,y1,x2,y2,RGB(r,g,b));
+              AddLine(line);
+              delete (yyvsp[(3) - (7)].vertex);
+              delete (yyvsp[(5) - (7)].vertex);
+              delete (yyvsp[(7) - (7)].clr);
+          }
+
+        Line line = Line::Create(x1,y1,x2,y2,RGB(r,g,b));
+        AddLine(line);
+    ;}
+    break;
+
+  case 14:
+
+/* Line 1455 of yacc.c  */
+#line 176 "parser.y"
+    {
+        float centerX = (yyvsp[(3) - (7)].vertex)->getX();
+        float centerY = (yyvsp[(3) - (7)].vertex)->getY();
+        float radius = (yyvsp[(5) - (7)].fvalObj)->getValue();
+        int r = (yyvsp[(7) - (7)].clr)->getR();
+        int g = (yyvsp[(7) - (7)].clr)->getG();
+        int b = (yyvsp[(7) - (7)].clr)->getB();
+        const float EPSILON = 1e-6;
+        if (radius <= 0) {
+            semantic_error("CIRCLE radius must be positive");
+        }
+        else if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+            semantic_error("Invalid RGB values, must be in range 0-255");
+        }
+        else {
+            Circle circle = Circle::Create(centerX, centerY, radius, RGB(r, g, b));
+            AddCircle(circle);
+            delete (yyvsp[(3) - (7)].vertex);
+            delete (yyvsp[(5) - (7)].fvalObj);
+            delete (yyvsp[(7) - (7)].clr);
+        }
+  ;}
+    break;
+
+  case 15:
+
+/* Line 1455 of yacc.c  */
+#line 199 "parser.y"
+    {
+        float centerX = (yyvsp[(3) - (11)].vertex)->getX();
+        float centerY = (yyvsp[(3) - (11)].vertex)->getY();
+        float majorAxis = (yyvsp[(5) - (11)].fvalObj)->getValue();
+        float minorAxis = (yyvsp[(7) - (11)].fvalObj)->getValue();
+        float rotation = (yyvsp[(9) - (11)].fvalObj)->getValue();
+        int r = (yyvsp[(11) - (11)].clr)->getR();
+        int g = (yyvsp[(11) - (11)].clr)->getG();
+        int b = (yyvsp[(11) - (11)].clr)->getB();
+        const float EPSILON = 1e-6;
+        if (majorAxis <= 0 || minorAxis <= 0) {
+            semantic_error("ELLIPSE axes must be positive");
+        }
+        else if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+            semantic_error("Invalid RGB values, must be in range 0-255");
+        }
+        else {
+            Ellipse_ ellipse = Ellipse_::Create(centerX, centerY, majorAxis, minorAxis, rotation, RGB(r, g, b));
+            AddEllipse(ellipse);
+            delete (yyvsp[(3) - (11)].vertex);
+            delete (yyvsp[(5) - (11)].fvalObj);
+            delete (yyvsp[(7) - (11)].fvalObj);
+            delete (yyvsp[(9) - (11)].fvalObj);
+            delete (yyvsp[(11) - (11)].clr);
+        }
+  ;}
+    break;
+
+  case 16:
+
+/* Line 1455 of yacc.c  */
+#line 227 "parser.y"
+    {
+        float x1 = (yyvsp[(3) - (9)].vertex)->getX();
+        float y1 = (yyvsp[(3) - (9)].vertex)->getY();
+        float x2 = (yyvsp[(5) - (9)].vertex)->getX();
+        float y2 = (yyvsp[(5) - (9)].vertex)->getY();
+        float x3 = (yyvsp[(7) - (9)].vertex)->getX();
+        float y3 = (yyvsp[(7) - (9)].vertex)->getY();
+        int r = (yyvsp[(9) - (9)].clr)->getR();
+        int g = (yyvsp[(9) - (9)].clr)->getG();
+        int b = (yyvsp[(9) - (9)].clr)->getB();
+        const float EPSILON = 1e-6;
+        if (fabs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)) < EPSILON) {
+            semantic_error("PARABOLA points are collinear");
+        }
+        else if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+            semantic_error("Invalid RGB values, must be in range 0-255");
+        }
+        else {
+            Parabola parabola = Parabola::CreateFrom3Points(x1, y1, x2, y2, x3, y3, RGB(r, g, b));
+            AddParabola(parabola);
+            delete (yyvsp[(3) - (9)].vertex);
+            delete (yyvsp[(5) - (9)].vertex);
+            delete (yyvsp[(7) - (9)].vertex);
+            delete (yyvsp[(9) - (9)].clr);
+        }
+ ;}
+    break;
+
+  case 17:
+
+/* Line 1455 of yacc.c  */
+#line 255 "parser.y"
+    { POINT point = { (LONG)(yyvsp[(3) - (5)].vertex)->getX(), (LONG)(yyvsp[(3) - (5)].vertex)->getY() };
+          COLORREF currColor = RGB((yyvsp[(5) - (5)].clr)->getB(), (yyvsp[(5) - (5)].clr)->getG(), (yyvsp[(5) - (5)].clr)->getR());
+          std::pair<POINT, COLORREF> floodFillPoint(point, currColor);
+          AddFloodFillPoint(floodFillPoint);
+          delete (yyvsp[(3) - (5)].vertex);
+          delete (yyvsp[(5) - (5)].clr);
+        ;}
+    break;
+
+  case 18:
+
+/* Line 1455 of yacc.c  */
+#line 264 "parser.y"
+    {
+            std::string varName((yyvsp[(2) - (4)].sval));
+
+            try {
+                Vertex v = globalVertexSymbolTable.getVertex(varName);
+                // If we reach here → variable exists
+                semantic_error((std::string("Variable redefinition: ") + varName).c_str());
+            } catch (const std::runtime_error&) {
+                // Variable does not exist → safe to add
+                globalVertexSymbolTable.addVertex(varName, *(yyvsp[(4) - (4)].vertex));
+                delete (yyvsp[(4) - (4)].vertex);
+            }
+
+            free((yyvsp[(2) - (4)].sval));
+        ;}
+    break;
+
+  case 19:
+
+/* Line 1455 of yacc.c  */
+#line 281 "parser.y"
+    {
+                std::string colorName((yyvsp[(2) - (4)].sval));
+    
+                try {
+                    Color c = globalColorsSymbolTable.getColor(colorName);
+                    // If we reach here → color exists
+                    semantic_error((std::string("Color redefinition: ") + colorName).c_str());
+                } catch (const std::invalid_argument&) {
+                    // Color does not exist → safe to add
+                    globalColorsSymbolTable.addColor(colorName, *(yyvsp[(4) - (4)].clr));
+                    delete (yyvsp[(4) - (4)].clr);
+                }
+
+    
+                free((yyvsp[(2) - (4)].sval));
+            ;}
+    break;
+
+  case 20:
+
+/* Line 1455 of yacc.c  */
+#line 298 "parser.y"
+    {
+                std::string floatName((yyvsp[(2) - (4)].sval));
+    
+                try {
+                    Float f = globalFloatSymbolTable.getFloat(floatName);
+                    // If we reach here → float exists
+                    semantic_error((std::string("Float variable redefinition: ") + floatName).c_str());
+                } catch (const std::invalid_argument&) {
+                    // Float does not exist → safe to add
+                    globalFloatSymbolTable.addFloat(floatName, *(yyvsp[(4) - (4)].fvalObj));
+                    delete (yyvsp[(4) - (4)].fvalObj);
+                }
+
+    
+                free((yyvsp[(2) - (4)].sval));
+            ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1452 "parser.tab.c"
+#line 1744 "parser.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1660,33 +1952,39 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 63 ".\\parser.y"
+#line 316 "parser.y"
 
-
-// int main(int argc, char *argv[]) {
-//     if (argc > 1) {
-//         FILE *file = fopen(argv[1], "r");
-//         if (!file) {
-//             perror("Error opening file");
-//             return 1;
-//         }
-//         yyin = file;
-//     }
-//     return yyparse();
-// }
 
 void parse(char *filename) {
+    // globalColorsSymbolTable.clear();
+    globalVertexSymbolTable.clear();
+    globalFloatSymbolTable.clear();
+    globalIntegerSymbolTable.clear();
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Error opening file");
+        char buf[512];
+        snprintf(buf, sizeof(buf), "Error opening file: %s", filename);
+        MessageBoxA(NULL, buf, "File Error", MB_ICONERROR | MB_OK);
         return;
     }
     yyin = file;
-    yyparse();
+    if (yyparse() != 0) {
+        MessageBoxA(NULL, "Parsing failed. Please check the input file format.", "Parse Error", MB_ICONERROR | MB_OK);
+    }
     fclose(file);
 }
 
 int yyerror(const char *s) {
-    fprintf(stderr, "Parse error: %s\n", s);
+    char buf[128];
+    snprintf(buf, sizeof(buf), "Syntax Error at line no: %d", yylineno);
+    MessageBoxA(NULL, buf, "Syntax Error", MB_ICONERROR | MB_OK);
     return 0;
 }
+
+
+void semantic_error(const char *msg) {
+    char buf[256];
+    snprintf(buf, sizeof(buf), "Error at line no: %d: %s", yylineno, msg);
+    MessageBoxA(NULL, buf, "Semantic Error", MB_ICONERROR | MB_OK);
+}
+

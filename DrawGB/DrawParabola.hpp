@@ -84,7 +84,7 @@ public:
                 temp.setColor(currColor);
                 AddParabola(temp);
 
-                std::string action = "PARABOLA: " + std::to_string(temp.getX1()) + ", " + std::to_string(temp.getY1()) + ", " + std::to_string(temp.getVertexX()) + ", " + std::to_string(temp.getVertexY()) + ", " + std::to_string(temp.getX2()) + ", " + std::to_string(temp.getY2()) + ", (" + std::to_string(GetRValue(temp.getColor())) + ", " + std::to_string(GetGValue(temp.getColor())) + ", " + std::to_string(GetBValue(temp.getColor())) + ")";
+                std::string action = "PARABOLA: (" + std::to_string(temp.getX1()) + ", " + std::to_string(temp.getY1()) + "), (" + std::to_string(temp.getVertexX()) + ", " + std::to_string(temp.getVertexY()) + "), (" + std::to_string(temp.getX2()) + ", " + std::to_string(temp.getY2()) + "), (" + std::to_string(GetRValue(temp.getColor())) + ", " + std::to_string(GetGValue(temp.getColor())) + ", " + std::to_string(GetBValue(temp.getColor())) + ")";
                 CodeAction(action);
 
                 InvalidateRect(hShowInfo, NULL, TRUE);

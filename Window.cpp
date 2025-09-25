@@ -368,7 +368,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                                         GetGValue(currColor),
                                         GetRValue(currColor));
             std::pair<POINT, COLORREF> floodFillPoint(point, ReverseColor);
-            AddFloodFillPoint(hwnd, floodFillPoint);
+            AddFloodFillPoint(floodFillPoint);
             InvalidateRect(hwnd, NULL, TRUE); // Redraw the window
         }
         //

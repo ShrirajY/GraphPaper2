@@ -112,7 +112,6 @@ void AxisDrawer::DrawGrid()
 #include <vector>
 #include <queue>
 #include <set>
-
 void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::set<COLORREF> stopColors)
 {
     const int maxX = 400;
@@ -196,13 +195,13 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::s
     DeleteDC(memDC);
 }
 
-void AddFloodFillPoint(HWND hwnd, std::pair<POINT, COLORREF> floodFillPoint)
+void AddFloodFillPoint(std::pair<POINT, COLORREF> floodFillPoint)
 {
     int startX = floodFillPoint.first.x;
     int startY = floodFillPoint.first.y;
     COLORREF fillColor = floodFillPoint.second;
     POINT pt = {startX, startY};
-    std::string action = "FILLCOLOR: " + std::to_string(startX) + ", " + std::to_string(startY) + ",(" +
+    std::string action = "FILLCOLOR: (" + std::to_string(startX) + ", " + std::to_string(startY) + "),(" +
                          std::to_string(GetBValue(fillColor)) + ", " +
                          std::to_string(GetGValue(fillColor)) + ", " +
                          std::to_string(GetRValue(fillColor)) + ")";
