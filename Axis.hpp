@@ -112,7 +112,7 @@ void AxisDrawer::DrawGrid()
 #include <vector>
 #include <queue>
 #include <set>
-void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::set<COLORREF> stopColors)
+void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::set<COLORREF> PassColors)
 {
     const int maxX = 400;
     const int maxY = 300;
@@ -154,6 +154,7 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::s
     };
 
     COLORREF startColor = getPixel(startX, startY);
+    PassColors.insert(startColor); // Allow filling over the start color
     if (startColor == fillColor)
     {
         SelectObject(memDC, oldBmp);
@@ -172,7 +173,7 @@ void FloodFillCustom(HDC hdc, int startX, int startY, COLORREF fillColor, std::s
 
         COLORREF currentColor = getPixel(p.x, p.y);
 
-        if (!stopColors.count(currentColor) || currentColor == fillColor)
+        if (!PassColors.count(currentColor) || currentColor == fillColor)
             continue;
 
         setPixel(p.x, p.y, fillColor);
